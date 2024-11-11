@@ -1,3 +1,91 @@
+# FlyHigh Project
+
+A Laravel-based web application developed for FlyHigh, designed to offer [description of the purpose of the application, e.g., booking flights, managing travel itineraries, etc.].
+
+## Table of Contents
+
+- [Features](#features)
+- [Technologies](#technologies)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Features
+
+- **[Feature 1]**: Briefly describe, e.g., “User authentication and registration.”
+- **[Feature 2]**: Describe other major features (e.g., flight booking system, real-time data, etc.)
+- **[Feature 3]**: Any unique features, like a responsive design, notifications, or integrations.
+
+## Technologies
+
+- **Laravel**: The PHP framework for building this application.
+- **Bootstrap**: For styling and responsive design.
+- **MySQL**: Database for storing user and booking data.
+- **[Additional libraries or packages]**: List any other key tools or packages.
+
+## Requirements
+
+- **PHP 8.x** or higher
+- **Composer** for managing dependencies
+- **MySQL** or compatible database
+- **[Any other dependencies]**
+
+## Installation
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git
+    ```
+2. Navigate into the project directory:
+    ```bash
+    cd WebsiteLaravel_FlyHighProject
+    ```
+3. Install dependencies:
+    ```bash
+    composer install
+    ```
+4. Copy the `.env.example` to `.env` and update database credentials:
+    ```bash
+    cp .env.example .env
+    ```
+5. Generate application key:
+    ```bash
+    php artisan key:generate
+    ```
+6. Migrate the database:
+    ```bash
+    php artisan migrate
+    ```
+7. (Optional) Seed the database if applicable:
+    ```bash
+    php artisan db:seed
+    ```
+8. Run the development server:
+    ```bash
+    php artisan serve
+    ```
+
+## Usage
+
+1. Access the application at [http://localhost:8000](http://localhost:8000).
+2. Register or log in to access features.
+3. Use the application to [explain how users interact with key features, e.g., search flights, book tickets, etc.].
+
+## Contributing
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

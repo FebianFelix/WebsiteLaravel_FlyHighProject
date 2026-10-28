@@ -16,6 +16,7 @@ class ItineraryController extends Controller
     public function __construct(private readonly ItineraryService $service) {}
     public function create(): View
     {
+        abort_unless(config('flyhigh.booking_mode') === 'simulation', 503, 'Synthetic bookings are unavailable in catalog-only mode.');
         abort_unless(SiteSetting::valueFor('booking_enabled') === '1', 503);
         return view('itineraries.create', [
             'flights'=>Flight::where('is_active',true)->where('departure_at','>',now())->orderBy('departure_at')->limit(100)->get(),
@@ -24,6 +25,7 @@ class ItineraryController extends Controller
     }
     public function store(Request $request): RedirectResponse
     {
+        abort_unless(config('flyhigh.booking_mode') === 'simulation', 503, 'Synthetic bookings are unavailable in catalog-only mode.');
         abort_unless(SiteSetting::valueFor('booking_enabled') === '1', 503);
         $request->merge(['flight_ids'=>array_values(array_filter((array)$request->input('flight_ids',[]), fn($v)=> $v !== null && $v !== ''))]);
         $data=$request->validate([

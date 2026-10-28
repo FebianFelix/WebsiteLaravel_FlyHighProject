@@ -83,11 +83,19 @@ Each command asks for confirmation; no predefined administrator account is seede
 
 For a Docker-based local MySQL stack, configure a private `.env` and strong passwords, then run `docker compose up --build -d` and `docker compose exec app php artisan migrate --seed`.
 
+## Application safety and deployment preflight
+
+The application **defaults to catalog-only on a production server** (`FLYHIGH_BOOKING_MODE=catalog_only`), so public visitors can browse inventory while the server refuses synthetic reservations. To intentionally allow fictional reservations, an operator must explicitly set `simulation`. Real airline orders and ticket issuing are **not implemented**. Demo payment settlement is blocked by code in `APP_ENV=production`, even if an operator accidentally sets a demo payment flag.
+
+Before database migrations or release promotion on a server, run `php artisan flyhigh:doctor --check-db --strict` after provisioning your private environment. This validates keys, database reachability, HTTPS and secure sessions without printing secrets. Sample database seeding is forbidden on production servers.
+
+For a reliable local presentation, use the [dedicated `demo` branch](https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject/tree/demo), which includes a one-command Docker Compose setup with offline SQLite data, fictional booking history, admin accounts and a real HTTP smoke test.
+
 ## Three environments
 
 | Environment | Code target | Database | Deployment |
 |---|---|---|---|
-| **Demo** | Any verified revision | Local SQLite + fictional users | Local-only, no external integrations |
+| **Demo** | `demo` branch | Dedicated SQLite + fictional users | Docker Compose for local presentation |
 | **Development** | `dev` branch | Separate dev MySQL | Conditional auto-CD |
 | **Production** | `master` branch | Separate production MySQL | Protected approval gate before CD |
 

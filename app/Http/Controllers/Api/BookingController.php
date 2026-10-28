@@ -30,6 +30,7 @@ class BookingController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        abort_unless(config('flyhigh.booking_mode') === 'simulation', 503, 'Synthetic bookings are disabled in catalog-only mode.');
         abort_unless($request->user()->tokenCan('bookings:write'), 403);
         $data = $request->validate([
             'flight_id' => ['required', 'integer', 'exists:flights,id'],

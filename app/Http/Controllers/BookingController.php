@@ -25,6 +25,7 @@ class BookingController extends Controller
     public function create(Flight $flight): View
     {
         abort_unless($flight->is_active && $flight->departure_at->isFuture(), 404);
+        abort_unless(config('flyhigh.booking_mode') === 'simulation', 503, 'Synthetic bookings are unavailable in catalog-only mode.');
         abort_unless(SiteSetting::valueFor('booking_enabled') === '1', 503);
         return view('bookings.create', [
             'flight' => $flight, 'requestKey' => (string) Str::uuid(),
@@ -45,6 +46,7 @@ class BookingController extends Controller
             'seat_codes.*' => ['required', 'string', 'regex:/^[1-9][0-9]{0,2}[A-F]$/'],
         ]);
 
+        abort_unless(config('flyhigh.booking_mode') === 'simulation', 503, 'Synthetic bookings are unavailable in catalog-only mode.');
         abort_unless(SiteSetting::valueFor('booking_enabled') === '1', 503);
         $booking = $this->bookings->reserve(
             $request->user(), (int) $data['flight_id'], $data['passengers'],

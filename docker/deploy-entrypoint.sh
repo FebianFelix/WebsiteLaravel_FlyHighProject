@@ -24,6 +24,34 @@ if [[ "$FLYHIGH_EXPECTED_ENV" == "production" ]] &&
   exit 1
 fi
 
+if [[ "$FLYHIGH_EXPECTED_ENV" == "production" ]] &&
+   grep -Eq '^FLYHIGH_DEMO_PAYMENTS=(true|1) ^ghcr\.io/.+@sha256:[0-9a-f]{64}$ ]]; then
+  echo "Refusing image without immutable sha256 digest" >&2
+  exit 1
+fi
+
+export FLYHIGH_IMAGE FLYHIGH_PROJECT FLYHIGH_HTTP_PORT
+compose=(docker compose --env-file .env -f compose.deploy.yml)
+
+"${compose[@]}" config --quiet
+docker pull "$FLYHIGH_IMAGE"
+"${compose[@]}" run --rm assets
+"${compose[@]}" up -d --no-deps app scheduler
+"${compose[@]}" exec -T app php artisan flyhigh:doctor --check-db --strict
+"${compose[@]}" exec -T app php artisan migrate --force
+"${compose[@]}" exec -T app php artisan optimize
+"${compose[@]}" up -d --no-deps web
+
+# The endpoint is bound to localhost only; external TLS is managed separately.
+curl --fail --silent --show-error --retry 8 --retry-delay 2 \
+  "http://127.0.0.1:${FLYHIGH_HTTP_PORT}/healthz" > /dev/null
+
+echo "FlyHigh $FLYHIGH_EXPECTED_ENV deployment completed: $FLYHIGH_IMAGE"
+ .env; then
+  echo "Refusing production deployment: demo payment must be disabled" >&2
+  exit 1
+fi
+
 if [[ ! "$FLYHIGH_IMAGE" =~ ^ghcr\.io/.+@sha256:[0-9a-f]{64}$ ]]; then
   echo "Refusing image without immutable sha256 digest" >&2
   exit 1

@@ -10,6 +10,7 @@ return [
     'owner' => 'FebianFelix',
     'origin' => 'https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject',
     'copyright' => '© 2026 FebianFelix. All rights reserved.',
+    'booking_mode' => env('FLYHIGH_BOOKING_MODE', env('APP_ENV') === 'production' ? 'catalog_only' : 'simulation'),
     'demo_mode' => env('APP_ENV') === 'demo',
     'tax_percent' => (int) env('FLYHIGH_TAX_PERCENT', 0),
     'flight_provider' => env('FLYHIGH_FLIGHT_PROVIDER', 'disabled'),
@@ -18,5 +19,7 @@ return [
     'stripe_secret' => env('STRIPE_SECRET_KEY'),
     'stripe_webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     'hold_minutes' => (int) env('FLYHIGH_HOLD_MINUTES', 15),
-    'demo_payment_enabled' => (bool) env('FLYHIGH_DEMO_PAYMENTS', false),
+    // This is a synthetic platform, never charge live airline inventory.
+    'demo_payment_enabled' => env('APP_ENV') !== 'production'
+        && filter_var(env('FLYHIGH_DEMO_PAYMENTS', false), FILTER_VALIDATE_BOOLEAN),
 ];

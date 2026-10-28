@@ -20,7 +20,7 @@ class ReleaseQualityV2Test extends TestCase
 
     public function test_guest_can_explore_help_and_footer_but_cannot_book(): void
     {
-        $this->get(route('home'))->assertOk()->assertSee('Legal & privacy')
+        $this->get(route('home'))->assertOk()->assertSee('Legal & privacy', false)
             ->assertSee('Original repository')->assertSee('FlyHigh v2.0.0');
         $this->get(route('flights.index'))->assertOk();
         $this->get(route('help'))->assertOk();
@@ -33,13 +33,13 @@ class ReleaseQualityV2Test extends TestCase
     {
         $this->actingAs(User::factory()->create(['role'=>'athena']))
             ->get(route('admin.portal'))->assertOk()
-            ->assertSee('Configuration & management')->assertSee('Dashboard & monitoring');
+            ->assertSee('Configuration & management', false)->assertSee('Dashboard & monitoring', false);
         $this->actingAs(User::factory()->create(['role'=>'hephaestus']))
             ->get(route('admin.portal'))->assertOk()
-            ->assertSee('Configuration & management')->assertDontSee('Dashboard & monitoring');
+            ->assertSee('Configuration & management', false)->assertDontSee('Dashboard & monitoring', false);
         $this->actingAs(User::factory()->create(['role'=>'argus']))
             ->get(route('admin.portal'))->assertOk()
-            ->assertDontSee('Configuration & management')->assertSee('Dashboard & monitoring');
+            ->assertDontSee('Configuration & management', false)->assertSee('Dashboard & monitoring', false);
     }
 
     public function test_live_stripe_keys_are_not_accepted_by_the_adapter(): void

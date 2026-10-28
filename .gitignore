@@ -9,6 +9,9 @@
 /.env
 /.env.*
 !/.env.example
+!/.env.demo.example
+/database/*.sqlite
+/database/*.sqlite-*
 /public/build
 /public/hot
 /storage/*.key

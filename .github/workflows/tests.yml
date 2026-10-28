@@ -93,10 +93,33 @@ jobs:
       - name: Run tests against real MySQL
         run: vendor/bin/phpunit --configuration=phpunit.mysql.xml
 
+  demo-smoke:
+    name: Offline demo SQLite smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3, pdo_mysql, dom, xml, curl, fileinfo, intl, gd, zip
+          coverage: none
+          tools: composer:v2
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: Boot offline demo database
+        run: |
+          cp .env.demo.example .env
+          touch database/demo.sqlite
+          php artisan key:generate --force
+          php artisan migrate --force
+          php artisan db:seed --class=DemoSeeder --force
+          php artisan migrate:status
+          php artisan route:list --except-vendor
+
   image:
     name: Build and publish immutable image
     if: github.event_name == 'push'
-    needs: [test-sqlite, test-mysql]
+    needs: [test-sqlite, test-mysql, demo-smoke]
     runs-on: ubuntu-latest
     permissions:
       contents: read

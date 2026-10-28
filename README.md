@@ -22,6 +22,14 @@
 | Ops | Scheduler, Docker/Nginx/MySQL sample, GitHub Actions tests, security documentation |
 | Provenance | LICENSE, NOTICE, backend config, DB provenance record, HTTP headers, footer |
 
+## FlyHigh v2.0 — standalone demo without external services
+
+```bash
+bash scripts/start-demo.sh
+```
+
+This prepares `APP_ENV=demo`, creates an isolated SQLite database, runs migrations, adds synthetic itineraries and sample role-based accounts, and serves the app on localhost. It does not connect to airlines, a payment processor, SMTP, MySQL, or a cloud host. Use fictional data only. See [demo guide](docs/DEMO.md).
+
 ## Development versus production CI/CD
 
 - **`dev`** is the development branch. Passing commits build a GHCR image and can deploy automatically to the isolated `development` environment.

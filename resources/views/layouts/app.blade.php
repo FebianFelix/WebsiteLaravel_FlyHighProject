@@ -9,9 +9,10 @@
     <meta name="description" content="{{ \App\Models\SiteSetting::valueFor('tagline') }}">
     <title>@yield('title', 'FlyHigh') · {{ \App\Models\SiteSetting::valueFor('brand_name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('foto/logoflyhigh.png') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    @unless(config('flyhigh.demo_mode'))<link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    @endunless
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
 <body>
@@ -51,7 +52,7 @@
         </details>
     </div>
 </header>
-<main>@if(\App\Models\SiteSetting::valueFor('banner_message'))<div class="site-banner" role="status">{{ \App\Models\SiteSetting::valueFor('banner_message') }}</div>@endif
+<main>@if(config('flyhigh.demo_mode'))<div class="site-banner">DEMO MODE · Offline SQLite · {{ __('ui.demo') }}</div>@endif @if(\App\Models\SiteSetting::valueFor('banner_message'))<div class="site-banner" role="status">{{ \App\Models\SiteSetting::valueFor('banner_message') }}</div>@endif
     @if(session('success'))
         <div class="container alert alert-success" role="status">{{ session('success') }}</div>
     @endif

@@ -22,6 +22,9 @@ class ExpireBookings extends Command
                     $count++;
                 }
             });
+        \App\Models\Itinerary::where('status','pending')
+            ->whereHas('bookings', fn ($q)=>$q->where('status', Booking::EXPIRED))
+            ->update(['status'=>'expired']);
         $this->info("Processed {$count} expired booking holds.");
         return self::SUCCESS;
     }

@@ -5,9 +5,12 @@
 <section class="section container two-column">
     <div class="card detail-card"><div class="detail-header"><span class="airline-icon">✈</span><div><h2>{{ $flight->airline }}</h2><p>{{ $flight->flight_number }} · Jadwal demo</p></div></div>
         <div class="detail-route"><div><small>Berangkat</small><strong>{{ $flight->departure_at->format('H:i') }}</strong><span>{{ $flight->origin }}</span><small>{{ $flight->departure_at->format('d M Y') }}</small></div><div class="route-line">✈</div><div><small>Tiba</small><strong>{{ $flight->arrival_at->format('H:i') }}</strong><span>{{ $flight->destination }}</span><small>{{ $flight->arrival_at->format('d M Y') }}</small></div></div>
-        <div class="divider"></div><p class="muted">Semua jadwal disediakan sebagai contoh portfolio. Reservasi ini tidak menghasilkan tiket maskapai sungguhan.</p>
+        <div class="divider"></div><p><strong>{{ ucwords(str_replace('_',' ',$flight->cabin_class)) }}</strong> · Cabin {{ $flight->carry_on_kg }} kg · Checked baggage {{ $flight->checked_baggage_kg }} kg @if($flight->aircraft_type)· {{ $flight->aircraft_type }}@endif</p>
+@if($flight->fare_rules)<p class="muted">Fare rules: {{ $flight->fare_rules }}</p>@endif
+<div class="divider"></div><p class="muted">Semua jadwal disediakan sebagai contoh portfolio. Reservasi ini tidak menghasilkan tiket maskapai sungguhan.</p>
     </div>
-    <aside class="card summary-card"><span class="eyebrow">RINCIAN HARGA</span><h2>Ringkasan</h2><div class="summary-line"><span>Harga per penumpang</span><strong>Rp {{ number_format($flight->price, 0, ',', '.') }}</strong></div><div class="summary-line"><span>Kursi tersedia (demo)</span><strong>{{ $flight->availableSeats() }}</strong></div><div class="divider"></div><strong class="price-large">Rp {{ number_format($flight->price, 0, ',', '.') }}</strong><p class="muted">Per penumpang · tanpa pembayaran</p>
+    <aside class="card summary-card"><span class="eyebrow">RINCIAN HARGA</span><h2>Ringkasan</h2><div class="summary-line"><span>Harga per penumpang</span><strong>Rp {{ number_format($flight->price, 0, ',', '.') }}</strong></div><div class="summary-line"><span>Kursi tersedia (demo)</span><strong>{{ $flight->availableSeats() }}</strong></div><div class="divider"></div><strong class="price-large">Rp {{ number_format($flight->price, 0, ',', '.') }}</strong><p class="muted">Per penumpang · harga simulasi</p>@guest<p class="muted">Jelajahi tanpa akun. Masuk atau daftar diperlukan saat reservasi.</p>@endguest
+@auth<form method="POST" action="{{ route('flights.wishlist', $flight) }}">@csrf<button type="submit" class="btn btn-outline btn-block">♡ Simpan / hapus wishlist</button></form>@endauth
     @if($flight->availableSeats() > 0)<a class="btn btn-primary btn-block" href="{{ route('bookings.create', $flight) }}">Lanjut reservasi →</a>@else<span class="btn btn-ghost btn-block disabled">Kursi penuh</span>@endif
     </aside>
 </section>

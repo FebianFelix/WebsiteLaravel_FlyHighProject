@@ -33,7 +33,7 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
-        return redirect()->intended($request->user()->isAdmin() ? route('admin.dashboard') : route('dashboard'));
+        return redirect()->intended($request->user()->isAdmin() ? route('admin.portal') : route('dashboard'));
     }
 
     public function register(Request $request): RedirectResponse
@@ -48,7 +48,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat. Periksa email untuk verifikasi.');
+        return redirect()->intended(route('dashboard'))->with('success', 'Akun berhasil dibuat. Periksa email untuk verifikasi.');
     }
 
     public function sendPasswordReset(Request $request): RedirectResponse

@@ -2,6 +2,7 @@
 @section('title', 'Masuk')
 @section('content')
 <section class="auth-wrap"><div class="auth-card"><span class="eyebrow">WELCOME BACK</span><h1>Selamat datang kembali.</h1><p>Masuk untuk melihat dan mengelola reservasi FlyHigh.</p>
+    @if(config('flyhigh.demo_mode'))<div class="alert alert-success">Offline demo accounts: athena@flyhigh.test, hephaestus@flyhigh.test, argus@flyhigh.test, traveler@flyhigh.test. Password: <strong>{{ env('FLYHIGH_DEMO_PASSWORD','DemoPass123!') }}</strong>. Never reuse these accounts in a public production deployment.</div>@endif
     <form method="POST" action="{{ route('login') }}" class="stack-form">@csrf
         <label>Email<input type="email" name="email" value="{{ old('email') }}" autocomplete="email" required autofocus placeholder="nama@email.com"></label>
         <label>Password<input type="password" name="password" autocomplete="current-password" required placeholder="Password"></label>

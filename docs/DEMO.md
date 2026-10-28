@@ -1,6 +1,6 @@
 # FlyHigh v2.0 — standalone demo
 
-This third environment complements **development** and **production**. The demo environment does not need MySQL, Stripe, Duffel, SMTP or GitHub Actions deployment. It uses PHP, Composer, local assets, and a local SQLite file.
+This third environment complements **development** and **production**. The demo environment does not need MySQL, Stripe, Duffel, SMTP or GitHub Actions deployment. It uses PHP, Composer, local assets, and a local SQLite file. Installing Composer dependencies on a fresh machine can require network access; afterwards the demo itself does not call external services.
 
 ## Quick start
 

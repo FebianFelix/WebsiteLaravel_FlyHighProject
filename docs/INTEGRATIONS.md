@@ -15,7 +15,7 @@ Then visit `/air-offers`. The backend uses Duffel v2 `POST /air/offer_requests` 
 
 Reference: https://duffel.com/docs/api/v2/offer-requests
 
-### Stripe Checkout
+### Stripe Checkout — test mode only
 
 Set these server-side values:
 ```env
@@ -27,7 +27,7 @@ FLYHIGH_DEMO_PAYMENTS=false
 
 Configure the Stripe webhook endpoint `POST https://YOUR-DOMAIN/api/v1/payments/stripe/webhook` for `checkout.session.completed`. Verification checks the raw-body HMAC signature, timestamp, paid status, currency, stored Checkout Session identifier and amount. Only a valid, current reservation can be confirmed. Duplicate event IDs are ignored. Late or mismatched paid events are stored in `payment_events` with `requires_review`, do not issue a demo ticket, and require provider-side reconciliation or refunds. Stripe Refunds API is available to Athena administrators from the refund review panel, with an idempotency key. Pending refunds should be monitored in Stripe until final state is confirmed.
 
-**Before enabling real money:** test webhooks and refunds with Stripe test mode; configure monitoring, complete legal/consumer refund terms, configure secure TLS, complete reconciliation, dispute/chargeback handling, record retention, tax review, fraud checks, and verify eligibility for live payment processing. FlyHigh does not fulfill airlines' actual ticket obligations.
+**FlyHigh v2.0 deliberately rejects live Stripe secret keys**. Before any future real-money extension: test webhooks and refunds with Stripe test mode; configure monitoring, complete legal/consumer refund terms, configure secure TLS, complete reconciliation, dispute/chargeback handling, record retention, tax review, fraud checks, and verify eligibility for live payment processing. FlyHigh does not fulfill airlines' actual ticket obligations.
 
 ### Security and operational constraints
 

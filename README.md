@@ -39,7 +39,7 @@ After an admin signs in, they see a **two-panel Control Center**: configuration 
 
 ## Run an offline demo in minutes
 
-Requirements: **PHP 8.3+, Composer, SQLite PDO extension**. Only local components are used: no MySQL server, Stripe, Duffel, SMTP, or GitHub authentication.
+Requirements: **PHP 8.3+, Composer, SQLite PDO extension**. At runtime only local components are used: no MySQL server, Stripe, Duffel, SMTP, or GitHub authentication. An initial Composer dependency download may require network access unless dependencies are cached.
 
 ```bash
 git clone https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git

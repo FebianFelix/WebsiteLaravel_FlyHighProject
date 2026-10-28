@@ -48,10 +48,12 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
-      - name: Validate deployment shell scripts
-        run: bash -n scripts/cd-deploy.sh docker/deploy-entrypoint.sh
+      - name: Validate installation, release and deployment scripts
+        run: bash -n scripts/*.sh docker/deploy-entrypoint.sh
       - name: PHP syntax lint
         run: find app routes config database tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Source archive smoke test
+        run: bash scripts/package-release.sh
       - name: Route compilation
         run: |
           php artisan route:list --except-vendor

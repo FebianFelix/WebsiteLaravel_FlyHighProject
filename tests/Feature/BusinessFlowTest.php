@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Flight;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -14,6 +15,13 @@ use Tests\TestCase;
 class BusinessFlowTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Domain tests must not share throttling counters from other cases.
+        $this->withoutMiddleware(ThrottleRequests::class);
+    }
 
     private function flight(): Flight
     {

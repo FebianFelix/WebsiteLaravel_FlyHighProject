@@ -6,12 +6,19 @@ use App\Models\Booking;
 use App\Models\Flight;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ApiFlowTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutMiddleware(ThrottleRequests::class);
+    }
 
     public function test_public_flight_search_returns_data(): void
     {
@@ -48,6 +55,7 @@ class ApiFlowTest extends TestCase
 
         $other = User::factory()->create();
         $otherToken = $other->createToken('other', ['bookings:read'])->plainTextToken;
+        $this->app['auth']->forgetGuards();
         $this->withToken($otherToken)->getJson('/api/v1/bookings/'.$booking->id)->assertForbidden();
         $this->postJson('/api/v1/bookings', $payload)->assertForbidden();
     }

@@ -49,14 +49,14 @@ class BookingController extends Controller
 
     public function show(Request $request, Booking $booking): View
     {
-        abort_unless($booking->user_id === $request->user()->id || $request->user()->isAdmin(), 403);
+        abort_unless($booking->user_id === $request->user()->id || $request->user()->canMonitor(), 403);
         $booking->load(['flight', 'passengers', 'user', 'payments']);
         return view('bookings.show', compact('booking'));
     }
 
     public function cancel(Request $request, Booking $booking): RedirectResponse
     {
-        abort_unless($booking->user_id === $request->user()->id || $request->user()->isAdmin(), 403);
+        abort_unless($booking->user_id === $request->user()->id || $request->user()->canMonitor(), 403);
         $this->bookings->cancel($booking);
         return redirect()->route('bookings.show', $booking)->with('success', 'Status reservasi diperbarui.');
     }

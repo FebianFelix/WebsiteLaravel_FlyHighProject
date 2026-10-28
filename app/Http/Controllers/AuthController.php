@@ -33,7 +33,7 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
-        return redirect()->intended($request->user()->isAdmin() ? route('admin.dashboard') : route('dashboard'));
+        return redirect()->intended($request->user()->isAdmin() ? route('admin.portal') : route('dashboard'));
     }
 
     public function register(Request $request): RedirectResponse

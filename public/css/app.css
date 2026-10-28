@@ -194,3 +194,17 @@ label select:focus{outline:2px solid rgba(53,123,121,.35)}
 .analytics-day strong{color:#10263f}.analytics-column{min-height:8px;background:linear-gradient(180deg,#5aa59a,#357b79);width:min(55px,85%);border-radius:8px 8px 0 0}
 .ticket-card{max-width:850px;margin:0 auto}.ticket-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}.ticket-verification{display:flex;gap:25px;align-items:center;background:#f2f7f8;border-radius:14px;padding:23px;margin-top:27px}.qr-box{width:180px;max-width:40%;flex:none}.qr-box svg{width:100%;height:auto}.ticket-disclaimer{font-weight:800;font-size:.71rem;letter-spacing:.09em;color:#a6504a;margin-top:25px}
 @media(max-width:520px){.ticket-verification{flex-direction:column;align-items:start}.qr-box{max-width:100%}}
+
+/* FlyHigh v2.0 — administrator workspace & content pages */
+.admin-portal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:24px;margin-bottom:28px}
+.portal-tile{padding:38px;display:flex;flex-direction:column;gap:12px;min-height:300px;transition:transform .2s,border-color .2s}
+.portal-tile:hover{transform:translateY(-4px);border-color:var(--teal)}
+.portal-tile p{color:var(--muted);flex:1}.portal-tile strong{color:var(--teal)}.portal-icon{font-size:2rem;color:var(--teal)}
+.notice-panel{padding:26px;margin-top:24px}.notice-panel p{color:var(--muted);margin-bottom:0}
+.faq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.faq-item{padding:22px}.faq-item summary{cursor:pointer;font-weight:800}.faq-item p{margin-top:15px;color:var(--muted)}
+.content-article{padding:36px;line-height:1.8}.content-article h2{font-size:1.5rem;margin-top:16px}
+.site-banner{background:#dbede9;text-align:center;color:#21494c;padding:11px 22px;font-weight:700}
+textarea,select{display:block;max-width:100%;width:100%;padding:12px;border:1px solid #dce5e9;border-radius:10px;background:white;color:var(--ink);font:inherit}
+.check-label{display:flex;align-items:center;gap:10px}.check-label input{width:auto;margin:0}
+@media(max-width:680px){.portal-tile,.content-article{padding:23px}.admin-portal-grid{grid-template-columns:1fr}}

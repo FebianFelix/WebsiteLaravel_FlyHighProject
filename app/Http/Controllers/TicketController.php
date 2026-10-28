@@ -16,7 +16,7 @@ class TicketController extends Controller
     private function authorized(Request $request, Booking $booking): void
     {
         abort_unless(
-            $request->user()->id === $booking->user_id || $request->user()->isAdmin(),
+            $request->user()->id === $booking->user_id || $request->user()->canMonitor(),
             403
         );
         abort_unless($booking->status === Booking::CONFIRMED, 404);

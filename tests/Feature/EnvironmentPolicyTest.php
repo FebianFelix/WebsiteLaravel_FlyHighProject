@@ -42,7 +42,6 @@ class EnvironmentPolicyTest extends TestCase
             'app.debug'=>true,
             'app.url'=>'http://example.test',
             'session.secure'=>false,
-            'database.default'=>'sqlite',
             'flyhigh.demo_payment_enabled'=>true,
         ]);
         $this->artisan('flyhigh:doctor')->assertExitCode(1);

@@ -8,6 +8,7 @@
 /.phpactor.yml
 /.env
 /.env.*
+/*.bak
 !/.env.example
 !/.env.demo.example
 /database/*.sqlite

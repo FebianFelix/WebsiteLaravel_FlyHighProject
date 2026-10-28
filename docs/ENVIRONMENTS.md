@@ -1,20 +1,19 @@
 # FlyHigh environments, branch policy, and CI/CD
 
-The repository keeps **two isolated runtime environments** and exactly two long-lived branches:
+The repository uses **three long-lived branches** but only two deployable server environments. The `demo` branch is a standalone sales presentation with Docker and fictional SQLite data; `dev` and `master` are for real application development and production releases.
 
-| Concern | Development | Production |
-|---|---|---|
-| Git branch | `dev` | `master` |
-| GitHub environment | `development` | `production` |
-| App setting | `APP_ENV=development` | `APP_ENV=production` |
-| Debug mode | `false` on internet-facing hosts | `false` |
-| Example APP_URL | `https://dev.example.com` | `https://flyhigh.example.com` |
-| Compose project | `flyhigh-development` | `flyhigh-production` |
-| Local reverse-proxy port | `8081` | `8080` |
-| Database | `flyhigh_development` | `flyhigh_production` |
-| Secret keys, MySQL credentials, storage | **Different** | **Different** |
-| Demo payment | Enabled for internal test | Disabled by default |
-| Rollout | Automatic when configured | Requires configured approval gate |
+| Concern | Demo presentation | Development | Production |
+|---|---|---|---|
+| Git branch | `demo` | `dev` | `master` |
+| Runtime environment | `APP_ENV=demo` | `APP_ENV=development` | `APP_ENV=production` |
+| Database | Standalone SQLite | Isolated MySQL | Isolated MySQL |
+| App URL | `http://127.0.0.1:8088` | `https://dev.example.com` | `https://flyhigh.example.com` |
+| Docker project | `flyhigh-presentation` | `flyhigh-development` | `flyhigh-production` |
+| Port | `8088` (localhost) | `8081` (local reverse proxy) | `8080` (local reverse proxy) |
+| Secrets and storage | Auto-generated local APP_KEY and private volume | Dedicated secrets and DB | Dedicated secrets and DB |
+| Synthetic payments | Enabled, fictional only | Internal opt-in | **Disabled by code** |
+| Booking | Demo simulation | Configurable simulation | **Catalog-only by default** |
+| Delivery | Manual local start, no GHCR/CD | CI/CD to development if enabled | CI/CD via protected approval if enabled |
 
 **Important:** The two Docker deployment stacks isolate containers, volumes, PHP sessions and database credentials. For strong operational isolation, provision **different hosts or VMs**, distinct MySQL instances or managed databases, and separate SSH service accounts. Docker projects alone do not provide a hard trust boundary on one host.
 
@@ -124,3 +123,17 @@ After tests pass, CI publishes `ghcr.io/<owner>/<repo>:sha-<commit>` and capture
 Local `docker-compose.yml` remains a developer-only sandbox; use `cp .env.example .env`, adjust local DB credentials and run `docker compose up --build`. It must never be pointed at production secrets.
 
 For architecture and endpoint contracts, see [API.md](API.md) and [README.md](../README.md).
+
+
+## Independent presentation demo
+
+The `demo` branch contains `docker-compose.demo.yml`, `scripts/reset-demo.sh`, a synthetic booking/refund seeder, a private SQLite volume and a browser HTTP smoke suite. It never deploys to development/production hosts and must not be promoted directly to `master`. Use [its dedicated guide](https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject/blob/demo/docs/DEMO.md).
+
+## Release-time safeguards
+
+The runtime preflight now executes `php artisan flyhigh:doctor --check-db --strict` prior to applying migrations. It verifies secret presence without displaying secret values; production HTTPS, secure session cookies and database; and rejects unsafe demo payment settings. `FLYHIGH_BOOKING_MODE=catalog_only` is the production default because synthetic reservations cannot issue airline tickets. An operator may explicitly choose `simulation` for an intentionally fictional setup, never for airline ticket issuance. `DatabaseSeeder` refuses to create fake flights in `APP_ENV=production`.
+
+
+## Developer workstation (Docker)
+
+For `dev`, run `bash scripts/start-dev.sh --seed`. It uses `docker-compose.yml`, generates a private APP_KEY and random local MySQL passwords, binds 8080 to localhost, and installs Composer's development dependencies into the **local developer image only**. A GHCR production build still uses the default `INSTALL_DEV=false`. To test: `docker compose exec -T app php artisan test`. It intentionally refuses to overwrite a non-development `.env` and leaves the database volume intact on normal stop.

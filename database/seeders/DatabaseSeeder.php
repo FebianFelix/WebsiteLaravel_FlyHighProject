@@ -9,6 +9,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            throw new \RuntimeException('Sample flight seed is forbidden in production.');
+        }
         $routes = [
             ['FH101', 'FlyHigh Air', 'Jakarta', 'Bali', 2, '08:10', 2, 1250000, 90],
             ['FH102', 'FlyHigh Air', 'Jakarta', 'Singapore', 3, '11:20', 2, 1950000, 110],

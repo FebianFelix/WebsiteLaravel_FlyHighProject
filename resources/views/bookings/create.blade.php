@@ -3,7 +3,7 @@
 @section('content')
 <section class="page-hero"><div class="container"><a class="back-link" href="{{ route('flights.show', $flight) }}">← Detail penerbangan</a><span class="eyebrow">BOOK YOUR FLIGHT</span><h1>Detail penumpang</h1><p>Lengkapi nama untuk membuat reservasi demo.</p></div></section>
 <section class="section container two-column"><div class="card form-card"><h2>Informasi penumpang</h2><p class="muted">Masukkan nama lengkap. Maksimal 6 penumpang per reservasi.</p>
-    <form method="POST" action="{{ route('bookings.store') }}" class="stack-form">@csrf<input type="hidden" name="flight_id" value="{{ $flight->id }}">
+    <form method="POST" action="{{ route('bookings.store') }}" class="stack-form">@csrf<input type="hidden" name="flight_id" value="{{ $flight->id }}"><input type="hidden" name="request_key" value="{{ old('request_key', $requestKey) }}">
         <div id="passenger-list">
             @foreach(old('passengers', ['']) as $index => $name)
                 <label class="passenger-field">Penumpang {{ $index + 1 }}<input name="passengers[]" required maxlength="120" value="{{ $name }}" placeholder="Nama lengkap sesuai identitas"></label>

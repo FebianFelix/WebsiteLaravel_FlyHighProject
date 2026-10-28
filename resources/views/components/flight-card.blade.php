@@ -1,12 +1,5 @@
 <article class="flight-card">
-    <div class="flight-head"><span class="airline-icon">✈</span><div><strong>{{ $flight->airline }}</strong><small>{{ $flight->flight_number }}</small></div><span class="pill">Demo</span></div>
-    <div class="flight-route">
-        <div><strong>{{ $flight->departure_at->format('H:i') }}</strong><span>{{ $flight->origin }}</span></div>
-        <div class="route-line"><span>↗</span><small>{{ $flight->departure_at->format('d M Y') }}</small></div>
-        <div class="text-right"><strong>{{ $flight->arrival_at->format('H:i') }}</strong><span>{{ $flight->destination }}</span></div>
-    </div>
-    <div class="flight-bottom">
-        <div><small>Mulai dari / penumpang</small><strong class="price">Rp {{ number_format($flight->price, 0, ',', '.') }}</strong></div>
-        <a href="{{ route('flights.show', $flight) }}" class="btn btn-primary btn-small">Lihat detail →</a>
-    </div>
+<div class="flight-head"><span class="airline-icon">✈</span><div><strong>{{ $flight->airline }}</strong><small>{{ $flight->flight_number }}</small></div><span class="pill">DEMO</span></div>
+<div class="flight-route"><div><strong>{{ $flight->departure_at->format('H:i') }}</strong><span>{{ $flight->origin }} {{ $flight->origin_code ? '('.$flight->origin_code.')' : '' }}</span></div><div class="route-line"><span>↗</span><small>{{ $flight->departure_at->format('d M Y') }} UTC</small></div><div class="text-right"><strong>{{ $flight->arrival_at->format('H:i') }}</strong><span>{{ $flight->destination }} {{ $flight->destination_code ? '('.$flight->destination_code.')' : '' }}</span></div></div>
+<div class="flight-bottom"><div><small>Harga demo per penumpang</small><strong class="price">Rp {{ number_format($flight->price, 0, ',', '.') }}</strong></div><a href="{{ route('flights.show', $flight) }}" class="btn btn-primary btn-small">Detail →</a></div>
 </article>

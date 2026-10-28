@@ -9,21 +9,22 @@ return new class extends Migration {
     {
         Schema::create('flights', function (Blueprint $table) {
             $table->id();
-            $table->string('flight_number', 20)->unique();
+            $table->string('flight_number', 20);
             $table->string('airline', 100);
             $table->string('origin', 100);
             $table->string('destination', 100);
+            $table->char('origin_code', 3)->nullable();
+            $table->char('destination_code', 3)->nullable();
             $table->dateTime('departure_at')->index();
             $table->dateTime('arrival_at');
             $table->unsignedBigInteger('price');
             $table->unsignedSmallInteger('seats_total');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->unique(['flight_number', 'departure_at']);
+            $table->index(['origin', 'destination', 'departure_at']);
         });
     }
 
-    public function down(): void
-    {
-        Schema::dropIfExists('flights');
-    }
+    public function down(): void { Schema::dropIfExists('flights'); }
 };

@@ -8,8 +8,10 @@
         <label>Maskapai<input name="airline" maxlength="100" required value="{{ old('airline', $flight->airline) }}" placeholder="FlyHigh Air"></label>
         <label>Kota asal<input name="origin" maxlength="100" required value="{{ old('origin', $flight->origin) }}" placeholder="Jakarta"></label>
         <label>Kota tujuan<input name="destination" maxlength="100" required value="{{ old('destination', $flight->destination) }}" placeholder="Bali"></label>
-        <label>Keberangkatan<input type="datetime-local" name="departure_at" required value="{{ old('departure_at', $flight->departure_at?->format('Y-m-d\TH:i')) }}"></label>
-        <label>Kedatangan<input type="datetime-local" name="arrival_at" required value="{{ old('arrival_at', $flight->arrival_at?->format('Y-m-d\TH:i')) }}"></label>
+        <label>Kode bandara asal (IATA)<input name="origin_code" maxlength="3" pattern="[A-Za-z]{3}" value="{{ old('origin_code', $flight->origin_code) }}" placeholder="CGK"></label>
+        <label>Kode bandara tujuan (IATA)<input name="destination_code" maxlength="3" pattern="[A-Za-z]{3}" value="{{ old('destination_code', $flight->destination_code) }}" placeholder="DPS"></label>
+        <label>Keberangkatan (UTC)<input type="datetime-local" name="departure_at" required value="{{ old('departure_at', $flight->departure_at?->format('Y-m-d\TH:i')) }}"></label>
+        <label>Kedatangan (UTC)<input type="datetime-local" name="arrival_at" required value="{{ old('arrival_at', $flight->arrival_at?->format('Y-m-d\TH:i')) }}"></label>
         <label>Harga (Rp)<input type="number" name="price" min="1000" max="1000000000" required value="{{ old('price', $flight->price) }}"></label>
         <label>Total kursi<input type="number" name="seats_total" min="1" max="1000" required value="{{ old('seats_total', $flight->seats_total) }}"></label>
     </div>

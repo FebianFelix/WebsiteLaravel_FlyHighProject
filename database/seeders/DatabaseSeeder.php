@@ -23,8 +23,10 @@ class DatabaseSeeder extends Seeder
         foreach ($routes as [$number, $airline, $origin, $destination, $days, $departure, $hours, $price, $seats]) {
             $departureAt = now()->startOfDay()->addDays($days)->setTimeFromTimeString($departure);
 
-            Flight::updateOrCreate(['flight_number' => $number], [
+            Flight::firstOrCreate(['flight_number' => $number], [
                 'airline' => $airline,
+                'origin_code' => match($origin) { 'Jakarta' => 'CGK', 'Bali' => 'DPS', 'Surabaya' => 'SUB', 'Medan' => 'KNO', 'Makassar' => 'UPG', default => null },
+                'destination_code' => match($destination) { 'Jakarta' => 'CGK', 'Bali' => 'DPS', 'Singapore' => 'SIN', 'Bangkok' => 'BKK', 'Yogyakarta' => 'YIA', 'Lombok' => 'LOP', default => null },
                 'origin' => $origin,
                 'destination' => $destination,
                 'departure_at' => $departureAt,

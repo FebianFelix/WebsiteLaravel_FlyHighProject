@@ -1,9 +1,12 @@
-name: Laravel Tests
-
+name: Laravel Quality & Tests
 on:
   push:
     branches: [master]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -14,15 +17,19 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, pdo_sqlite, sqlite3, dom, xml, curl, fileinfo
+          extensions: mbstring, pdo_sqlite, sqlite3, pdo_mysql, dom, xml, curl, fileinfo, intl, gd, zip
           coverage: none
+      - name: Composer validation
+        run: composer validate --no-check-publish
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
       - name: Prepare application
         run: |
           cp .env.example .env
           php artisan key:generate
-      - name: Lint application PHP
-        run: find app routes database tests -name '*.php' -print0 | xargs -0 -n1 php -l
-      - name: Run tests
+      - name: PHP syntax lint
+        run: find app routes database tests config -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Laravel route list
+        run: php artisan route:list --except-vendor
+      - name: Feature & Unit tests
         run: php artisan test

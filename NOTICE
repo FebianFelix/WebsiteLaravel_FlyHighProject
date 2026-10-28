@@ -1,0 +1,23 @@
+FLYHIGH — PROJECT PROVENANCE
+Copyright (c) 2023–2026 FebianFelix. All rights reserved.
+
+Original GitHub repository:
+https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject
+
+FlyHigh began as a university flight-booking project in 2023.
+The application was substantially rebuilt and extended in 2026.
+
+This source contains visible provenance in:
+1. LICENSE and NOTICE (repository-level legal documentation)
+2. config/flyhigh.php (Laravel project provenance)
+3. database/migrations/2026_10_28_000004_create_project_provenance_table.php
+4. resources/views/layouts/app.blade.php (author and footer)
+5. app/Http/Middleware/ProjectAttribution.php (HTTP response headers)
+6. resources/views/tickets/pdf.blade.php (document provenance)
+
+Attribution is evidentiary, not a technical lock. An attacker could remove
+visible notices from a clone; preserved commit history, signed releases, and
+registration of relevant rights are complementary protections.
+
+This notice does not claim ownership of third-party Laravel, Dompdf,
+endroid/qr-code, fonts, or stock/illustrative photographs.

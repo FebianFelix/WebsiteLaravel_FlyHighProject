@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="FebianFelix — https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject">
+    <meta name="application-name" content="FlyHigh by FebianFelix">
     <meta name="theme-color" content="#10263f">
     <meta name="description" content="FlyHigh — prototype modern aplikasi reservasi penerbangan berbasis Laravel.">
     <title>@yield('title', 'FlyHigh') · FlyHigh</title>
@@ -24,7 +26,7 @@
             <a href="{{ route('about') }}">Tentang</a>
             <a href="{{ route('contact') }}">Kontak</a>
             @auth
-                <a href="{{ route('bookings.index') }}">Reservasi Saya</a>
+                <a href="{{ route('bookings.index') }}">Reservasi Saya</a><a href="{{ route('account.edit') }}">Akun</a>
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}">Admin</a>
                 @endif
@@ -69,7 +71,7 @@
         <div><strong>Bantuan</strong><a href="{{ route('contact') }}">Kontak</a><a href="{{ route('login') }}">Akun</a></div>
         <div><strong>Portfolio demo</strong><p>Data penerbangan simulasi. Tidak melakukan transaksi atau penerbitan tiket resmi.</p></div>
     </div>
-    <div class="container footer-bottom"><span>© {{ date('Y') }} FlyHigh</span><span>Built with Laravel · Portfolio project</span></div>
+    <div class="container footer-bottom"><span>{{ config('flyhigh.copyright') }} · FlyHigh</span><span><a href="{{ config('flyhigh.origin') }}" rel="noopener noreferrer" target="_blank">Original repository · FebianFelix</a></span></div>
 </footer>
 </body>
 </html>

@@ -6,7 +6,7 @@
 <h2>FlyHigh · {{ $booking->reference }}</h2><p>Issued {{ $booking->created_at->format('d M Y H:i') }} UTC · {{ $booking->user->name }}</p>
 <p>{{ $booking->flight->flight_number }} · {{ $booking->flight->origin }} → {{ $booking->flight->destination }} · {{ $booking->flight->departure_at->format('d M Y H:i') }} UTC</p>
 <div class="summary-line"><span>Base fare</span><strong>Rp {{ number_format($booking->base_fare ?: $booking->total_price,0,',','.') }}</strong></div>
-<div class="summary-line"><span>Discount</span><strong>− Rp {{ number_format($booking->discount_amount,0,',','.') }}</strong></div>
+<div class="summary-line"><span>Discount {{ $booking->promo_code ? '('.$booking->promo_code.')' : '' }}</span><strong>− Rp {{ number_format($booking->discount_amount,0,',','.') }}</strong></div>
 <div class="summary-line"><span>Tax simulation</span><strong>Rp {{ number_format($booking->tax_amount,0,',','.') }}</strong></div>
 <div class="divider"></div><div class="summary-line"><strong>Grand total</strong><strong>Rp {{ number_format($booking->total_price,0,',','.') }}</strong></div>
 <p class="muted">Status: {{ strtoupper($booking->status) }}. {{ $booking->payments->where('status','succeeded')->count() ? 'Payment recorded.' : 'No successful payment recorded.' }}</p>

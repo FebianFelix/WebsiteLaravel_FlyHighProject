@@ -90,8 +90,7 @@ class CommerceV2Test extends TestCase
         $header='t='.$timestamp.',v1='.hash_hmac('sha256',$timestamp.'.'.$payload,'whsec_test');
         $url=route('stripe.webhook');
         $this->call('POST',$url,[],[],[],['CONTENT_TYPE'=>'application/json'], $payload)->assertStatus(400);
-        $this->withHeaders(['Stripe-Signature'=>$header,'Content-Type'=>'application/json'])
-            ->call('POST',$url,[],[],[],['CONTENT_TYPE'=>'application/json'], $payload)->assertOk();
+        $this->call('POST',$url,[],[],[],['CONTENT_TYPE'=>'application/json','HTTP_STRIPE_SIGNATURE'=>$header], $payload)->assertOk();
         $this->assertSame('confirmed',$booking->fresh()->status);
         $this->assertDatabaseCount('payments',1);
         $this->withHeaders(['Stripe-Signature'=>$header,'Content-Type'=>'application/json'])

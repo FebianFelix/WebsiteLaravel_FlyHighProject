@@ -21,4 +21,5 @@
 /storage/logs/*
 /bootstrap/cache/*.php
 .DS_Store
+/.releases/
 Thumbs.db

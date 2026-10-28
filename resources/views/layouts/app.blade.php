@@ -6,6 +6,7 @@
     <meta name="author" content="FebianFelix — https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject">
     <meta name="application-name" content="FlyHigh by FebianFelix">
     <meta name="theme-color" content="#10263f">
+    @if(config('flyhigh.demo_mode'))<meta name="robots" content="noindex,nofollow,noarchive">@endif
     <meta name="description" content="{{ \App\Models\SiteSetting::valueFor('tagline') }}">
     <title>@yield('title', 'FlyHigh') · {{ \App\Models\SiteSetting::valueFor('brand_name') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('foto/logoflyhigh.png') }}">
@@ -67,12 +68,12 @@
 <footer class="site-footer">
     <div class="container footer-grid">
         <div><a class="brand footer-brand" href="{{ route('home') }}"><span class="brand-mark">✈</span>fly<span class="brand-accent">high.</span></a>
-            <p>{{ \App\Models\SiteSetting::valueFor('tagline') }}</p><p class="muted">Booking management platform · Laravel v2.0.</p></div>
+            <p>{{ \App\Models\SiteSetting::valueFor('tagline') }}</p><p class="muted">Booking management platform · Laravel v{{ config('flyhigh.version') }}.</p></div>
         <div><strong>Explore</strong><a href="{{ route('home') }}">Homepage</a><a href="{{ route('flights.index') }}">{{ __('ui.flights') }}</a><a href="{{ route('about') }}">{{ __('ui.about') }}</a><a href="{{ route('info') }}">Informasi perjalanan</a></div>
         <div><strong>Support</strong><a href="{{ route('help') }}">Help center & FAQ</a><a href="{{ route('contact') }}">Hubungi kami</a><a href="mailto:{{ \App\Models\SiteSetting::valueFor('support_email') }}">Email bantuan</a><a href="{{ route('legal') }}">Legal & privacy</a></div>
         <div><strong>Account & product</strong>@auth<a href="{{ route('bookings.index') }}">{{ __('ui.bookings') }}</a><a href="{{ route('account.edit') }}">Preferensi akun</a>@if(auth()->user()->isAdmin())<a href="{{ route('admin.portal') }}">Admin control center</a>@endif @else<a href="{{ route('login') }}">{{ __('ui.login') }}</a><a href="{{ route('register') }}">Buat akun</a>@endauth<p class="demo-note">DEMO: data dan tiket simulasi; tidak berlaku untuk perjalanan nyata.</p></div>
     </div>
-    <div class="container footer-bottom"><span>{{ config('flyhigh.copyright') }} · FlyHigh v2.0</span><span><a href="{{ config('flyhigh.origin') }}" rel="noopener noreferrer" target="_blank">Original repository · FebianFelix</a> · <a href="{{ route('legal') }}">Terms</a></span></div>
+    <div class="container footer-bottom"><span>{{ config('flyhigh.copyright') }} · FlyHigh v{{ config('flyhigh.version') }}</span><span><a href="{{ config('flyhigh.origin') }}" rel="noopener noreferrer" target="_blank">Original repository · FebianFelix</a> · <a href="{{ route('legal') }}">Terms</a></span></div>
 </footer>
 </body>
 </html>

@@ -6,6 +6,7 @@
  * See LICENSE and NOTICE. Attribution does not substitute access control.
  */
 return [
+    'version' => '2.0.0',
     'owner' => 'FebianFelix',
     'origin' => 'https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject',
     'copyright' => '© 2026 FebianFelix. All rights reserved.',

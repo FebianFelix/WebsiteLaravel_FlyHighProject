@@ -28,4 +28,22 @@ grep -qE 'HTTP/[0-9.]+ 302' "$tmp/headers"
 curl -fsS -b "$tmp/cookies" "$url/admin" > "$tmp/portal"
 grep -q 'Configuration & management' "$tmp/portal"
 grep -q 'Dashboard & monitoring' "$tmp/portal"
-echo "PASS: demo HTTP, flight catalog, help, login and Athena portal."
+curl -fsS -b "$tmp/cookies" "$url/admin/dashboard" > "$tmp/dashboard"
+grep -q "DEMO GROSS BOOKING VALUE" "$tmp/dashboard"
+curl -fsS -b "$tmp/cookies" "$url/admin/refunds" > "$tmp/refunds"
+grep -q "Presentation example" "$tmp/refunds"
+
+# A separate authenticated customer must see their own real rendered booking and PDF.
+curl -fsS "$url/login" -c "$tmp/traveler.cookies" -b "$tmp/traveler.cookies" > "$tmp/traveler.login"
+traveler_token="$(sed -n 's/.*name="_token" value="\([^"]*\)".*/\1/p' "$tmp/traveler.login" | head -n1)"
+test -n "$traveler_token"
+curl -fsS -c "$tmp/traveler.cookies" -b "$tmp/traveler.cookies" \
+  -d "_token=$traveler_token" --data-urlencode "email=traveler@flyhigh.test" \
+  --data-urlencode "password=$password" \
+  "$url/login" -D "$tmp/traveler.headers" -o /dev/null
+grep -qE "HTTP/[0-9.]+ 302" "$tmp/traveler.headers"
+curl -fsS -b "$tmp/traveler.cookies" "$url/bookings/1" > "$tmp/booking"
+grep -q "DEMO201" "$tmp/booking"
+curl -fsS -b "$tmp/traveler.cookies" "$url/bookings/1/invoice.pdf" > "$tmp/invoice.pdf"
+test "$(head -c 5 "$tmp/invoice.pdf")" = "%PDF-"
+echo "PASS: local Docker, discovery, Athena dashboard/refunds, Traveler booking and PDF invoice."

@@ -91,7 +91,7 @@ jobs:
           cp .env.example .env
           php artisan key:generate
       - name: Run tests against real MySQL
-        run: php artisan test --configuration=phpunit.mysql.xml
+        run: vendor/bin/phpunit --configuration=phpunit.mysql.xml
 
   image:
     name: Build and publish immutable image

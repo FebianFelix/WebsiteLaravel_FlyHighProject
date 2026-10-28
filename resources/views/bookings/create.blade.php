@@ -11,7 +11,7 @@
         </div>
         <button type="button" id="add-passenger" class="btn btn-outline btn-small">+ Tambah penumpang</button>
         <p class="muted">Jumlah akhir dan ketersediaan kursi divalidasi ulang oleh server.</p>
-        <div class="divider"></div><h3>Pilih kursi (opsional)</h3><p class="muted">Pilih satu kursi per penumpang, atau kosongkan untuk alokasi otomatis. Kursi terisi tidak tersedia.</p>
+        <label>Kode promo (opsional)<input name="promo_code" maxlength="40" value="{{ old('promo_code') }}" placeholder="WELCOME10"></label><div class="divider"></div><h3>Pilih kursi (opsional)</h3><p class="muted">Pilih satu kursi per penumpang, atau kosongkan untuk alokasi otomatis. Kursi terisi tidak tersedia.</p>
 <div class="seat-map" role="group" aria-label="Pilih kursi">@foreach($seatCodes as $code)<label class="seat-option"><input type="checkbox" name="seat_codes[]" value="{{ $code }}" {{ in_array($code,$occupiedSeats,true)?'disabled':'' }} {{ in_array($code,old('seat_codes',[]),true)?'checked':'' }}><span>{{ $code }}</span></label>@endforeach</div>
 <button type="submit" class="btn btn-primary btn-block">Konfirmasi reservasi demo →</button>
     </form>

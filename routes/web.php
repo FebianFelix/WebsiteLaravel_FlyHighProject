@@ -10,6 +10,11 @@ use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\RefundController;
+use App\Http\Controllers\StripeCheckoutController;
+use App\Http\Controllers\Admin\PromoController;
+use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\PortalController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ContentController;
@@ -50,6 +55,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
     Route::get('/bookings/{booking}/ticket', [TicketController::class, 'show'])->name('bookings.ticket');
     Route::get('/bookings/{booking}/ticket.pdf', [TicketController::class, 'pdf'])->name('bookings.ticket.pdf');
+    Route::get('/bookings/{booking}/invoice', [InvoiceController::class, 'show'])->name('bookings.invoice');
+    Route::get('/bookings/{booking}/invoice.pdf', [InvoiceController::class, 'pdf'])->name('bookings.invoice.pdf');
+    Route::post('/bookings/{booking}/stripe-checkout', [StripeCheckoutController::class, 'checkout'])->middleware('throttle:5,1')->name('bookings.stripe-checkout');
+    Route::post('/bookings/{booking}/refund', [RefundController::class, 'store'])->middleware('throttle:3,1')->name('bookings.refund');
     Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
     Route::post('/bookings/{booking}/demo-payment', [DemoPaymentController::class, 'confirm'])->middleware('throttle:5,1')->name('bookings.demo-payment');
     Route::get('/account', [ProfileController::class, 'edit'])->name('account.edit');
@@ -71,13 +80,19 @@ Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(func
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
         Route::get('/bookings/export', [AdminBookingController::class, 'export'])->name('bookings.export');
+        Route::get('/refunds', [AdminRefundController::class, 'index'])->name('refunds.index');
     });
     Route::middleware('admin:config')->group(function () {
         Route::resource('flights', AdminFlightController::class)->except(['show']);
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
         Route::resource('pages', ContentController::class)->except(['show']);
+        Route::get('/promos', [PromoController::class, 'index'])->name('promos.index');
+        Route::post('/promos', [PromoController::class, 'store'])->name('promos.store');
+        Route::patch('/promos/{promo}', [PromoController::class, 'toggle'])->name('promos.toggle');
     });
+    Route::post('/refunds/{refund}/approve', [AdminRefundController::class, 'approve'])->middleware('admin:athena')->name('refunds.approve');
+    Route::post('/refunds/{refund}/reject', [AdminRefundController::class, 'reject'])->middleware('admin:athena')->name('refunds.reject');
 });
 
 Route::redirect('/index', '/');

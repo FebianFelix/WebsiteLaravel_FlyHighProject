@@ -12,6 +12,9 @@ class EnsureAdmin
     {
         $user = $request->user();
         abort_unless($user?->isAdmin(), 403);
+        if ($area === 'athena') {
+            abort_unless(in_array($user->role, ['admin', 'athena'], true), 403);
+        }
         if ($area === 'config') {
             abort_unless($user->canManageConfig(), 403);
         }

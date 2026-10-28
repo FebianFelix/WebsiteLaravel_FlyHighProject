@@ -40,6 +40,7 @@ class BookingController extends Controller
             'request_key' => ['nullable', 'uuid'],
             'passengers' => ['required', 'array', 'min:1', 'max:6'],
             'passengers.*' => ['required', 'string', 'max:120'],
+            'promo_code' => ['nullable', 'string', 'max:40'],
             'seat_codes' => ['nullable', 'array', 'max:6'],
             'seat_codes.*' => ['required', 'string', 'regex:/^[1-9][0-9]{0,2}[A-F]$/'],
         ]);
@@ -47,7 +48,7 @@ class BookingController extends Controller
         abort_unless(SiteSetting::valueFor('booking_enabled') === '1', 503);
         $booking = $this->bookings->reserve(
             $request->user(), (int) $data['flight_id'], $data['passengers'],
-            $data['request_key'] ?? (string) Str::uuid(), $data['seat_codes'] ?? [],
+            $data['request_key'] ?? (string) Str::uuid(), $data['seat_codes'] ?? [], $data['promo_code'] ?? null,
         );
 
         return redirect()->route('bookings.show', $booking)
@@ -57,7 +58,7 @@ class BookingController extends Controller
     public function show(Request $request, Booking $booking): View
     {
         abort_unless($booking->user_id === $request->user()->id || $request->user()->canMonitor(), 403);
-        $booking->load(['flight', 'passengers', 'user', 'payments', 'seatAssignments']);
+        $booking->load(['flight', 'passengers', 'user', 'payments', 'seatAssignments', 'refundRequest']);
         return view('bookings.show', compact('booking'));
     }
 

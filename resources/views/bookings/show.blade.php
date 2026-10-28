@@ -16,12 +16,19 @@
 <div class="summary-line"><span>Penumpang</span><strong>{{ $booking->seats }}</strong></div>
 <div class="summary-line"><span>Status</span><strong>{{ ucfirst($booking->status) }}</strong></div>
 @if($booking->status === 'pending')<div class="summary-line"><span>Batas konfirmasi</span><strong>{{ $booking->expires_at?->format('d M, H:i') }} UTC</strong></div>@endif
+<div class="summary-line"><span>Harga dasar</span><strong>Rp {{ number_format($booking->base_fare ?: $booking->total_price, 0, ',', '.') }}</strong></div>
+@if($booking->discount_amount)<div class="summary-line"><span>Promo {{ $booking->promo_code }}</span><strong>-Rp {{ number_format($booking->discount_amount,0,',','.') }}</strong></div>@endif
+@if($booking->tax_amount)<div class="summary-line"><span>Simulasi pajak</span><strong>Rp {{ number_format($booking->tax_amount,0,',','.') }}</strong></div>@endif
 <div class="divider"></div><strong class="price-large">Rp {{ number_format($booking->total_price, 0, ',', '.') }}</strong>
 <p class="muted">Nominal ilustratif; tidak ada pembayaran yang diproses.</p>
 @if($booking->status === 'pending' && $booking->expires_at?->isFuture() && config('flyhigh.demo_payment_enabled'))
 <form method="POST" action="{{ route('bookings.demo-payment', $booking) }}">@csrf
 <button class="btn btn-primary btn-block" type="submit">Konfirmasi pembayaran DEMO →</button>
 </form>@endif
+<a class="btn btn-outline btn-block" href="{{ route('bookings.invoice',$booking) }}">Invoice / receipt →</a>
+@if($booking->status==='pending' && config('flyhigh.payment_gateway')==='stripe')<form method="POST" action="{{ route('bookings.stripe-checkout',$booking) }}">@csrf<button class="btn btn-primary btn-block" type="submit">Bayar melalui Stripe Checkout</button></form>@endif
+@if($booking->status==='confirmed' && !$booking->refundRequest)<form method="POST" action="{{ route('bookings.refund',$booking) }}">@csrf<label>Alasan permohonan refund<textarea name="reason" required maxlength="1000" minlength="10"></textarea></label><button class="btn btn-outline btn-block" type="submit">Ajukan refund</button></form>@endif
+@if($booking->refundRequest)<p class="muted">Refund: {{ ucfirst($booking->refundRequest->status) }}</p>@endif
 @if(in_array($booking->status, ['pending','confirmed']) && $booking->flight->departure_at->isFuture())
 <form method="POST" action="{{ route('bookings.cancel', $booking) }}" onsubmit="return confirm('Batalkan reservasi demo ini?')">@csrf @method('PATCH')<button class="btn btn-outline btn-block" type="submit">Batalkan reservasi</button></form>
 @endif

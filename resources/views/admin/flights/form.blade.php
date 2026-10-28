@@ -14,7 +14,12 @@
         <label>Kedatangan (UTC)<input type="datetime-local" name="arrival_at" required value="{{ old('arrival_at', $flight->arrival_at?->format('Y-m-d\TH:i')) }}"></label>
         <label>Harga (Rp)<input type="number" name="price" min="1000" max="1000000000" required value="{{ old('price', $flight->price) }}"></label>
         <label>Total kursi<input type="number" name="seats_total" min="1" max="1000" required value="{{ old('seats_total', $flight->seats_total) }}"></label>
+        <label>Kelas kabin<select name="cabin_class">@foreach(['economy'=>'Economy','premium_economy'=>'Premium Economy','business'=>'Business','first'=>'First'] as $value=>$label)<option value="{{ $value }}" {{ old('cabin_class',$flight->cabin_class??'economy')===$value?'selected':'' }}>{{ $label }}</option>@endforeach</select></label>
+        <label>Kabin baggage (kg)<input type="number" min="0" max="50" name="carry_on_kg" value="{{ old('carry_on_kg',$flight->carry_on_kg??7) }}"></label>
+        <label>Checked baggage (kg)<input type="number" min="0" max="100" name="checked_baggage_kg" value="{{ old('checked_baggage_kg',$flight->checked_baggage_kg??20) }}"></label>
+        <label>Jenis pesawat<input name="aircraft_type" maxlength="80" value="{{ old('aircraft_type',$flight->aircraft_type) }}" placeholder="Airbus A320"></label>
     </div>
+    <label>Ringkasan syarat tarif<textarea name="fare_rules" maxlength="500" rows="4">{{ old('fare_rules',$flight->fare_rules) }}</textarea></label>
     <label class="check-label"><input type="checkbox" name="is_active" value="1" {{ old('is_active', $editing ? $flight->is_active : true) ? 'checked' : '' }}><span>Jadwal aktif</span></label>
     <div class="form-actions"><a class="btn btn-ghost" href="{{ route('admin.flights.index') }}">Batal</a><button class="btn btn-primary" type="submit">{{ $editing ? 'Simpan perubahan' : 'Buat penerbangan' }} →</button></div>
 </form></div></section>

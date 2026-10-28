@@ -12,7 +12,10 @@ class StripeGateway
     public function enabled(): bool
     {
         return config('flyhigh.payment_gateway') === 'stripe'
-            && filled(config('flyhigh.stripe_secret')) && filled(config('flyhigh.stripe_webhook_secret'));
+            && is_string(config('flyhigh.stripe_secret'))
+            && str_starts_with((string) config('flyhigh.stripe_secret'), 'sk_test_')
+            && filled(config('flyhigh.stripe_webhook_secret'))
+            && ! config('flyhigh.demo_mode');
     }
 
     public function createCheckout(Booking $booking): array

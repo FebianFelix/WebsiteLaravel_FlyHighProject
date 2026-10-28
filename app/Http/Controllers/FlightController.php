@@ -24,6 +24,8 @@ class FlightController extends Controller
             'destination' => ['nullable', 'string', 'max:100'],
             'date' => ['nullable', 'date_format:Y-m-d'],
             'airline' => ['nullable', 'string', 'max:100'],
+            'cabin_class' => ['nullable', Rule::in(['economy','premium_economy','business','first'])],
+            'min_baggage' => ['nullable', 'integer', 'min:0', 'max:60'],
             'trip_type' => ['nullable', Rule::in(['one_way', 'round_trip', 'multi_city'])],
             'return_date' => ['nullable', 'date_format:Y-m-d'],
             'via' => ['nullable', 'string', 'max:100'],
@@ -36,11 +38,14 @@ class FlightController extends Controller
         if (($filters['trip_type'] ?? '') === 'multi_city' && ! empty($filters['via'])) {
             $query->where('destination', $filters['via']);
         }
-        foreach (['origin', 'destination', 'airline'] as $field) {
+        $searchFields = (($filters['trip_type'] ?? '') === 'multi_city') ? ['origin', 'airline'] : ['origin', 'destination', 'airline'];
+        foreach ($searchFields as $field) {
             if (! empty($filters[$field])) {
                 $query->where($field, 'like', '%'.addcslashes($filters[$field], '%_\\').'%');
             }
         }
+        if (! empty($filters['cabin_class'])) { $query->where('cabin_class', $filters['cabin_class']); }
+        if (isset($filters['min_baggage'])) { $query->where('checked_baggage_kg', '>=', $filters['min_baggage']); }
         if (! empty($filters['date'])) { $query->whereDate('departure_at', $filters['date']); }
         if (! empty($filters['max_price'])) { $query->where('price', '<=', $filters['max_price']); }
 

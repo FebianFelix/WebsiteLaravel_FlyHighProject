@@ -10,12 +10,14 @@ class Flight extends Model
     protected $fillable = [
         'flight_number', 'airline', 'origin', 'destination', 'origin_code',
         'destination_code', 'departure_at', 'arrival_at', 'price',
-        'seats_total', 'is_active',
+        'seats_total', 'is_active', 'cabin_class', 'carry_on_kg',
+        'checked_baggage_kg', 'fare_rules', 'aircraft_type',
     ];
 
     protected $casts = [
         'departure_at' => 'datetime', 'arrival_at' => 'datetime',
         'price' => 'integer', 'seats_total' => 'integer', 'is_active' => 'boolean',
+        'carry_on_kg' => 'integer', 'checked_baggage_kg' => 'integer',
     ];
 
     public function bookings(): HasMany { return $this->hasMany(Booking::class); }

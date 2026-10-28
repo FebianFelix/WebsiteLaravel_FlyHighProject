@@ -73,9 +73,17 @@ class FlightController extends Controller
             'arrival_at' => ['required', 'date', 'after:departure_at'],
             'price' => ['required', 'integer', 'min:1000', 'max:1000000000'],
             'seats_total' => ['required', 'integer', 'min:1', 'max:1000'],
+            'cabin_class' => ['nullable', Rule::in(['economy','premium_economy','business','first'])],
+            'carry_on_kg' => ['nullable','integer','min:0','max:50'],
+            'checked_baggage_kg' => ['nullable','integer','min:0','max:100'],
+            'aircraft_type' => ['nullable','string','max:80'],
+            'fare_rules' => ['nullable','string','max:500'],
             'is_active' => ['nullable', 'boolean'],
         ]);
         $data['is_active'] = $request->boolean('is_active');
+        $data['cabin_class'] = $data['cabin_class'] ?? 'economy';
+        $data['carry_on_kg'] = $data['carry_on_kg'] ?? 7;
+        $data['checked_baggage_kg'] = $data['checked_baggage_kg'] ?? 20;
         foreach (['origin_code', 'destination_code'] as $key) {
             $data[$key] = isset($data[$key]) ? strtoupper($data[$key]) : null;
         }

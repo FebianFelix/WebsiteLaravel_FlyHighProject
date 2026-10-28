@@ -11,6 +11,8 @@
 <label>Tanggal kembali<input type="date" name="return_date" value="{{ $filters['return_date']??'' }}"></label>
 <label>Kota perantara<input name="via" value="{{ $filters['via']??'' }}" maxlength="100" placeholder="Untuk multi-city"></label>
 <label>Tanggal segmen kedua<input name="via_date" type="date" value="{{ $filters['via_date']??'' }}"></label>
+<label>Kelas kabin<select name="cabin_class"><option value="">Semua kelas</option>@foreach(['economy'=>'Economy','premium_economy'=>'Premium Economy','business'=>'Business','first'=>'First'] as $code=>$label)<option value="{{ $code }}" {{ ($filters['cabin_class']??'')===$code?'selected':'' }}>{{ $label }}</option>@endforeach</select></label>
+<label>Minimum bagasi (kg)<input type="number" min="0" max="60" name="min_baggage" value="{{ $filters['min_baggage']??'' }}" placeholder="Opsional"></label>
 <label>Maskapai<select name="airline"><option value="">Semua maskapai</option>@foreach($airlines as $airline)<option value="{{ $airline }}" {{ ($filters['airline'] ?? '') === $airline ? 'selected' : '' }}>{{ $airline }}</option>@endforeach</select></label>
 <label>Harga maksimum (IDR)<input type="number" min="1000" name="max_price" placeholder="Opsional" value="{{ $filters['max_price'] ?? '' }}"></label>
 <label>Urutkan<select name="sort"><option value="departure">Berangkat terdekat</option><option value="price_asc" {{ ($filters['sort'] ?? '') === 'price_asc' ? 'selected' : '' }}>Harga termurah</option><option value="price_desc" {{ ($filters['sort'] ?? '') === 'price_desc' ? 'selected' : '' }}>Harga tertinggi</option></select></label>

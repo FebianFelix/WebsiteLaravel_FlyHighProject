@@ -8,6 +8,7 @@
 <div class="detail-route"><div><small>Berangkat</small><strong>{{ $booking->flight->departure_at->format('H:i') }}</strong><span>{{ $booking->flight->origin }}</span><small>{{ $booking->flight->departure_at->format('d M Y') }} UTC</small></div><div class="route-line">✈</div><div><small>Tiba</small><strong>{{ $booking->flight->arrival_at->format('H:i') }}</strong><span>{{ $booking->flight->destination }}</span><small>{{ $booking->flight->arrival_at->format('d M Y') }} UTC</small></div></div>
 <div class="divider"></div><h3>Penumpang ({{ $booking->seats }})</h3>
 <ol class="passenger-list">@foreach($booking->passengers as $passenger)<li>{{ $passenger->full_name }}</li>@endforeach</ol>
+<p class="muted">Kursi dialokasikan: {{ $booking->seatAssignments->pluck('seat_code')->join(', ') ?: 'Tidak tersedia' }}</p>
 <p class="muted">Dokumen ini hanya bukti reservasi simulasi. Bukan boarding pass atau tiket maskapai resmi.</p>
 </div>
 <aside class="card summary-card"><span class="eyebrow">PAYMENT SIMULATOR</span><h2>Ringkasan</h2>

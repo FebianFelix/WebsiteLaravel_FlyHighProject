@@ -17,9 +17,9 @@ class BookingService
      * changes must use the same lock order (flight -> booking) to prevent
      * double-selling and reduce deadlock risk on MySQL/PostgreSQL.
      */
-    public function reserve(User $user, int $flightId, array $passengers, string $requestKey): Booking
+    public function reserve(User $user, int $flightId, array $passengers, string $requestKey, array $seatCodes = []): Booking
     {
-        return DB::transaction(function () use ($user, $flightId, $passengers, $requestKey) {
+        return DB::transaction(function () use ($user, $flightId, $passengers, $requestKey, $seatCodes) {
             $flight = Flight::query()->lockForUpdate()->findOrFail($flightId);
             $existing = Booking::query()->where('user_id', $user->id)
                 ->where('request_key', $requestKey)->first();
@@ -50,6 +50,7 @@ class BookingService
                 $booking->passengers()->create(['full_name' => trim($name)]);
             }
 
+            app(SeatAllocator::class)->assign($flight, $booking, $seatCodes);
             return $booking;
         }, 3);
     }
@@ -82,6 +83,7 @@ class BookingService
             if (in_array($current->status, [Booking::PENDING, Booking::CONFIRMED], true)
                 && $current->flight->departure_at->isFuture()) {
                 $current->update(['status' => Booking::CANCELLED]);
+                app(SeatAllocator::class)->release($current);
             }
             return $current;
         }, 3);
@@ -94,6 +96,7 @@ class BookingService
             $current = Booking::query()->lockForUpdate()->findOrFail($booking->id);
             if ($current->status === Booking::PENDING && $current->expires_at->isPast()) {
                 $current->update(['status' => Booking::EXPIRED]);
+                app(SeatAllocator::class)->release($current);
             }
         }, 3);
     }

@@ -208,3 +208,8 @@ label select:focus{outline:2px solid rgba(53,123,121,.35)}
 textarea,select{display:block;max-width:100%;width:100%;padding:12px;border:1px solid #dce5e9;border-radius:10px;background:white;color:var(--ink);font:inherit}
 .check-label{display:flex;align-items:center;gap:10px}.check-label input{width:auto;margin:0}
 @media(max-width:680px){.portal-tile,.content-article{padding:23px}.admin-portal-grid{grid-template-columns:1fr}}
+
+/* V1.2 seat selector */
+.seat-map{max-height:320px;overflow-y:auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:16px;background:#f5f8fa;border-radius:16px;border:1px solid var(--line)}
+.seat-option{margin:0;cursor:pointer}.seat-option input{position:absolute;opacity:0;width:1px;height:1px}.seat-option span{display:block;text-align:center;padding:8px 2px;border:1px solid #cedde0;border-radius:8px;background:white;font-size:.72rem}
+.seat-option input:checked+span{background:#2b7772;color:white;border-color:#2b7772}.seat-option input:disabled+span{background:#e1e6e9;color:#a2acb7;text-decoration:line-through;cursor:not-allowed}.seat-option input:focus-visible+span{outline:3px solid #d67f5c}

@@ -36,12 +36,14 @@ class BookingController extends Controller
             'request_key' => ['nullable', 'uuid'],
             'passengers' => ['required', 'array', 'min:1', 'max:6'],
             'passengers.*' => ['required', 'string', 'max:120'],
+            'seat_codes' => ['nullable', 'array', 'max:6'],
+            'seat_codes.*' => ['required', 'string', 'regex:/^[1-9][0-9]{0,2}[A-F]$/'],
         ]);
         $key = $data['request_key'] ?? $request->header('Idempotency-Key') ?? (string) Str::uuid();
         if (! Str::isUuid($key)) {
             return response()->json(['message' => 'Idempotency-Key must be UUID'], 422);
         }
-        $booking = $this->service->reserve($request->user(), (int) $data['flight_id'], $data['passengers'], $key);
+        $booking = $this->service->reserve($request->user(), (int) $data['flight_id'], $data['passengers'], $key, $data['seat_codes'] ?? []);
         return response()->json(['data' => $booking->load('passengers')], 201);
     }
 

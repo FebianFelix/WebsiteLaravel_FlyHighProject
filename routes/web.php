@@ -6,6 +6,8 @@ use App\Http\Controllers\DemoPaymentController;
 use App\Http\Controllers\FlightController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PreferenceController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\Admin\PortalController;
@@ -52,6 +54,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/bookings/{booking}/demo-payment', [DemoPaymentController::class, 'confirm'])->middleware('throttle:5,1')->name('bookings.demo-payment');
     Route::get('/account', [ProfileController::class, 'edit'])->name('account.edit');
     Route::patch('/account', [ProfileController::class, 'update'])->name('account.update');
+    Route::patch('/account/preferences', [PreferenceController::class, 'update'])->name('account.preferences');
+    Route::get('/account/wishlist', [WishlistController::class, 'index'])->name('account.wishlist');
+    Route::post('/flights/{flight}/wishlist', [WishlistController::class, 'toggle'])->name('flights.wishlist');
     Route::put('/account/password', [ProfileController::class, 'password'])->name('account.password');
     Route::post('/account/tokens', [ProfileController::class, 'createToken'])->middleware('throttle:3,1')->name('account.tokens.create');
     Route::delete('/account/tokens/{tokenId}', [ProfileController::class, 'deleteToken'])->name('account.tokens.destroy');

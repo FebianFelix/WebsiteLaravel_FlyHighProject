@@ -24,11 +24,18 @@ class FlightController extends Controller
             'destination' => ['nullable', 'string', 'max:100'],
             'date' => ['nullable', 'date_format:Y-m-d'],
             'airline' => ['nullable', 'string', 'max:100'],
+            'trip_type' => ['nullable', Rule::in(['one_way', 'round_trip', 'multi_city'])],
+            'return_date' => ['nullable', 'date_format:Y-m-d'],
+            'via' => ['nullable', 'string', 'max:100'],
+            'via_date' => ['nullable', 'date_format:Y-m-d'],
             'max_price' => ['nullable', 'integer', 'min:1000', 'max:1000000000'],
             'sort' => ['nullable', Rule::in(['departure', 'price_asc', 'price_desc'])],
         ]);
 
         $query = Flight::query()->where('is_active', true)->where('departure_at', '>', now());
+        if (($filters['trip_type'] ?? '') === 'multi_city' && ! empty($filters['via'])) {
+            $query->where('destination', $filters['via']);
+        }
         foreach (['origin', 'destination', 'airline'] as $field) {
             if (! empty($filters[$field])) {
                 $query->where($field, 'like', '%'.addcslashes($filters[$field], '%_\\').'%');
@@ -44,7 +51,18 @@ class FlightController extends Controller
         };
         $flights = $query->paginate(9)->withQueryString();
         $airlines = Flight::where('is_active', true)->distinct()->orderBy('airline')->pluck('airline');
-        return view('flights.index', compact('flights', 'filters', 'airlines'));
+        $secondLegFlights = null;
+        if (($filters['trip_type'] ?? '') === 'round_trip' && ! empty($filters['origin']) && ! empty($filters['destination']) && ! empty($filters['return_date'])) {
+            $secondLegFlights = Flight::where('is_active', true)->where('departure_at', '>', now())
+                ->where('origin', $filters['destination'])->where('destination', $filters['origin'])
+                ->whereDate('departure_at', $filters['return_date'])->orderBy('departure_at')->limit(12)->get();
+        }
+        if (($filters['trip_type'] ?? '') === 'multi_city' && ! empty($filters['via']) && ! empty($filters['destination']) && ! empty($filters['via_date'])) {
+            $secondLegFlights = Flight::where('is_active', true)->where('departure_at', '>', now())
+                ->where('origin', $filters['via'])->where('destination', $filters['destination'])
+                ->whereDate('departure_at', $filters['via_date'])->orderBy('departure_at')->limit(12)->get();
+        }
+        return view('flights.index', compact('flights', 'filters', 'airlines', 'secondLegFlights'));
     }
 
     public function show(Flight $flight): View

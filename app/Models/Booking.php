@@ -26,6 +26,7 @@ class Booking extends Model
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
     public function flight(): BelongsTo { return $this->belongsTo(Flight::class); }
     public function passengers(): HasMany { return $this->hasMany(Passenger::class); }
+    public function seatAssignments(): HasMany { return $this->hasMany(BookingSeat::class); }
     public function payments(): HasMany { return $this->hasMany(Payment::class); }
 
     public function holdsSeat(): bool

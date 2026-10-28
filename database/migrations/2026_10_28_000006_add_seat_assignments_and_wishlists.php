@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('booking_seats', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('booking_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('flight_id')->constrained()->cascadeOnDelete();
+            $table->string('seat_code', 6);
+            $table->unique(['flight_id', 'seat_code']);
+            $table->timestamps();
+        });
+        Schema::create('flight_wishlists', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('flight_id')->constrained()->cascadeOnDelete();
+            $table->primary(['user_id', 'flight_id']);
+        });
+    }
+    public function down(): void
+    {
+        Schema::dropIfExists('flight_wishlists');
+        Schema::dropIfExists('booking_seats');
+    }
+};

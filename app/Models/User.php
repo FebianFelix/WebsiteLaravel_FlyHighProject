@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -23,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime', 'password' => 'hashed', 'email_updates' => 'boolean',
     ];
 
+    public function wishlistedFlights(): BelongsToMany { return $this->belongsToMany(Flight::class, 'flight_wishlists'); }
     public function bookings(): HasMany { return $this->hasMany(Booking::class); }
     public function isAdmin(): bool { return in_array($this->role, ['admin', self::ATHENA, self::HEPHAESTUS, self::ARGUS], true); }
     public function canManageConfig(): bool { return in_array($this->role, ['admin', self::ATHENA, self::HEPHAESTUS], true); }

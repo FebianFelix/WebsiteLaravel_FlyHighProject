@@ -1,35 +1,189 @@
-name: Laravel Quality & Tests
+name: FlyHigh CI/CD
+
 on:
   push:
-    branches: [master]
+    branches: [dev, master]
   pull_request:
+    branches: [dev, master]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: flyhigh-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
-  test:
+  promotion-policy:
+    name: Require dev branch for production PRs
+    if: github.event_name == 'pull_request' && github.base_ref == 'master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require dev to master promotion
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: |
+          if [[ "$SOURCE_BRANCH" != "dev" ]]; then
+            echo "Production pull requests must originate from dev" >&2
+            exit 1
+          fi
+
+  test-sqlite:
+    name: Unit & feature tests (SQLite)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: mbstring, pdo_sqlite, sqlite3, pdo_mysql, dom, xml, curl, fileinfo, intl, gd, zip
           coverage: none
-      - name: Composer validation
-        run: composer validate --no-check-publish
-      - name: Install dependencies
+          tools: composer:v2
+      - name: Validate dependency manifest and lockfile
+        run: composer validate --strict --no-check-publish
+      - name: Install pinned dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
-      - name: Prepare application
+      - name: Prepare test app
         run: |
           cp .env.example .env
           php artisan key:generate
+      - name: Validate deployment shell scripts
+        run: bash -n scripts/cd-deploy.sh docker/deploy-entrypoint.sh
       - name: PHP syntax lint
-        run: find app routes database tests config -name '*.php' -print0 | xargs -0 -n1 php -l
-      - name: Laravel route list
-        run: php artisan route:list --except-vendor
-      - name: Feature & Unit tests
+        run: find app routes config database tests -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Route compilation
+        run: |
+          php artisan route:list --except-vendor
+          php artisan route:cache
+          php artisan route:clear
+      - name: Run SQLite test suite
         run: php artisan test
+
+  test-mysql:
+    name: Integration tests (MySQL 8)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: flyhigh_ci
+          MYSQL_USER: flyhigh_ci
+          MYSQL_PASSWORD: ci_only_password
+          MYSQL_ROOT_PASSWORD: ci_only_root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost --silent"
+          --health-interval=5s --health-timeout=3s --health-retries=30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3, pdo_mysql, dom, xml, curl, fileinfo, intl, gd, zip
+          coverage: none
+          tools: composer:v2
+      - name: Install pinned dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: Prepare test app
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      - name: Run tests against real MySQL
+        run: php artisan test --configuration=phpunit.mysql.xml
+
+  image:
+    name: Build and publish immutable image
+    if: github.event_name == 'push'
+    needs: [test-sqlite, test-mysql]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.digest.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Compute image identifier
+        id: metadata
+        shell: bash
+        run: |
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        id: build
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.metadata.outputs.image }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=LicenseRef-Proprietary
+            org.opencontainers.image.authors=FebianFelix
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Pin deployable image by registry digest
+        id: digest
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}@${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT"
+
+  deploy-development:
+    name: Deploy development environment
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && vars.DEPLOY_DEVELOPMENT_ENABLED == 'true'
+    needs: [test-sqlite, test-mysql, image]
+    runs-on: ubuntu-latest
+    concurrency:
+      group: flyhigh-deploy-development
+      cancel-in-progress: false
+    environment:
+      name: development
+      url: ${{ vars.DEPLOY_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy tested image via SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          DEPLOY_PROJECT: ${{ vars.DEPLOY_PROJECT }}
+          DEPLOY_HTTP_PORT: ${{ vars.DEPLOY_HTTP_PORT }}
+          DEPLOY_SSH_PORT: ${{ vars.DEPLOY_SSH_PORT }}
+          FLYHIGH_IMAGE: ${{ needs.image.outputs.image }}
+          FLYHIGH_EXPECTED_ENV: development
+        run: bash scripts/cd-deploy.sh
+
+  deploy-production:
+    name: Deploy protected production environment
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && vars.DEPLOY_PRODUCTION_ENABLED == 'true'
+    needs: [test-sqlite, test-mysql, image]
+    runs-on: ubuntu-latest
+    concurrency:
+      group: flyhigh-deploy-production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: ${{ vars.DEPLOY_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy release via SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+          DEPLOY_PROJECT: ${{ vars.DEPLOY_PROJECT }}
+          DEPLOY_HTTP_PORT: ${{ vars.DEPLOY_HTTP_PORT }}
+          DEPLOY_SSH_PORT: ${{ vars.DEPLOY_SSH_PORT }}
+          FLYHIGH_IMAGE: ${{ needs.image.outputs.image }}
+          FLYHIGH_EXPECTED_ENV: production
+        run: bash scripts/cd-deploy.sh

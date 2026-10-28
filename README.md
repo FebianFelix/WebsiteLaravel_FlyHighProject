@@ -22,6 +22,14 @@
 | Ops | Scheduler, Docker/Nginx/MySQL sample, GitHub Actions tests, security documentation |
 | Provenance | LICENSE, NOTICE, backend config, DB provenance record, HTTP headers, footer |
 
+## Development versus production CI/CD
+
+- **`dev`** is the development branch. Passing commits build a GHCR image and can deploy automatically to the isolated `development` environment.
+- **`master`** is the production branch. Promote code using a reviewed `dev → master` pull request. Protected `production` environment approvals are required before enabling live deployment.
+- Both run SQLite and MySQL CI. No server deployments happen until the GitHub environment secrets and explicit repository flags are configured.
+
+See the **[two-environment operations guide](docs/ENVIRONMENTS.md)** for server preparation, GitHub branch protection, secret separation, approval gates, image tags, deployment and recovery.
+
 ## Technology
 
 Laravel 13, PHP 8.3+, Blade, MySQL 8.4 or SQLite, Laravel Sanctum,

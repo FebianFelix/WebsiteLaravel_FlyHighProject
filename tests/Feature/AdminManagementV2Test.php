@@ -18,7 +18,7 @@ class AdminManagementV2Test extends TestCase
         $this->patch(route('admin.users.role',$member),['role'=>User::ARGUS])->assertRedirect();
         $this->assertSame(User::ARGUS,$member->fresh()->role);
         $this->assertDatabaseHas('audit_events',['action'=>'user.role.changed']);
-        $this->actingAs($member)->patch(route('admin.users.role',$athena),['role'=>User::ARGUS])->assertForbidden();
+        $this->actingAs($member->fresh())->patch(route('admin.users.role',$athena),['role'=>User::ARGUS])->assertForbidden();
         $this->get(route('admin.audit.index'))->assertOk();
     }
 

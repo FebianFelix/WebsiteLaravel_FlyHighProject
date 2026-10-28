@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DemoPaymentController;
 use App\Http\Controllers\FlightController;
+use App\Http\Controllers\LiveOfferController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PreferenceController;
@@ -25,6 +26,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [FlightController::class, 'home'])->name('home');
 Route::get('/flights', [FlightController::class, 'index'])->name('flights.index');
+Route::get('/air-offers', [LiveOfferController::class, 'index'])->name('flights.live.index');
+Route::post('/air-offers', [LiveOfferController::class, 'search'])->middleware('throttle:5,1')->name('flights.live.search');
 Route::get('/healthz', fn () => response()->json(['status' => 'ok']))->name('healthz');
 Route::get('/verify/{reference}', [TicketController::class, 'verify'])->middleware('signed')->name('tickets.verify');
 Route::get('/flights/{flight}', [FlightController::class, 'show'])->name('flights.show');

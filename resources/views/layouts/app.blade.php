@@ -24,7 +24,7 @@
         <nav class="desktop-nav" aria-label="Navigasi utama">
             <a class="{{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
             <a class="{{ request()->routeIs('flights.*') ? 'active' : '' }}" href="{{ route('flights.index') }}">{{ __('ui.flights') }}</a>
-            <a href="{{ route('about') }}">{{ __('ui.about') }}</a>
+            <a href="{{ route('flights.live.index') }}">Airline offers</a><a href="{{ route('about') }}">{{ __('ui.about') }}</a>
             <a href="{{ route('help') }}">{{ __('ui.help') }}</a><a href="{{ route('info') }}">{{ __('ui.information') }}</a><a href="{{ route('contact') }}">{{ __('ui.contact') }}</a>
             @auth
                 <a href="{{ route('bookings.index') }}">{{ __('ui.bookings') }}</a><a href="{{ route('account.edit') }}">{{ __('ui.account') }}</a>

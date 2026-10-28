@@ -30,6 +30,14 @@ bash scripts/start-demo.sh
 
 This prepares `APP_ENV=demo`, creates an isolated SQLite database, runs migrations, adds synthetic itineraries and sample role-based accounts, and serves the app on localhost. It does not connect to airlines, a payment processor, SMTP, MySQL, or a cloud host. Use fictional data only. See [demo guide](docs/DEMO.md).
 
+## Optional airline search and Stripe payment adapters
+
+- `FLYHIGH_FLIGHT_PROVIDER=duffel` + server-managed `DUFFEL_ACCESS_TOKEN`: **read-only** airline offer search, supporting one-way, return, and two-segment multi-city searches. **No airline orders or issuance** are implemented.
+- `FLYHIGH_PAYMENT_GATEWAY=stripe` + `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`: Checkout Session creation, cryptographically verified completion webhook, idempotent payment records, and manual reconciliation for late/mismatched payments.
+- `FLYHIGH_DEMO_PAYMENTS=true`: synthetic settlement only. Never confuse with real charging. The demo environment uses this and leaves both external adapters disabled.
+
+See [integration handbook](docs/INTEGRATIONS.md) before connecting real provider credentials. External payment processing is **not** equivalent to flight fulfillment; legal, airline supplier and reconciliation controls are still necessary.
+
 ## Development versus production CI/CD
 
 - **`dev`** is the development branch. Passing commits build a GHCR image and can deploy automatically to the isolated `development` environment.

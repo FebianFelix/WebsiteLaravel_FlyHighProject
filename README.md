@@ -1,84 +1,78 @@
-# WebsiteLaravel_FlyHighProject
+# FlyHigh — Laravel Flight Booking Portfolio
 
-FlyHigh Project is a Laravel-based web application developed to provide a seamless flight booking experience. The project includes user authentication, a booking system, real-time data handling, and a responsive design for optimal use across various devices.
+FlyHigh adalah aplikasi portfolio full-stack untuk **reservasi penerbangan simulasi**, dikembangkan ulang dari project mahasiswa tahun 2023. Versi ini memakai **Laravel 13 (PHP 8.3+)**, Blade, Eloquent, session authentication, MySQL/SQLite, dan UI responsif.
 
-## Table of Contents
+> **Bukan platform penerbangan sungguhan.** Jadwal, inventori, dan harga adalah data demo; aplikasi tidak mengakses API maskapai, menarik pembayaran, atau menerbitkan tiket resmi.
 
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Installation and Setup](#installation-and-setup)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+## Fitur
 
-## Features
+- Homepage baru + pencarian penerbangan berdasarkan asal, tujuan, dan tanggal.
+- Detail penerbangan, ketersediaan kursi simulasi, dan harga transparan.
+- Registrasi, login dan logout melalui Laravel Auth, dengan session regeneration dan throttle.
+- Reservasi 1–6 penumpang menggunakan transaksi database dan penguncian inventori MySQL.
+- Dashboard reservasi pribadi, detail, cetak ringkasan, dan pembatalan.
+- Panel admin dilindungi role untuk mengelola jadwal dan memantau seluruh reservasi.
+- Migration lengkap untuk users, flights, bookings, passengers + flight demo seeder.
+- Pengujian feature untuk akses, autentikasi, inventory dan reservasi.
 
-- **User Authentication**: Secure login and registration features for users.
-- **Flight Booking System**: Allows users to search and book flights with real-time data processing.
-- **Real-Time Data Updates**: Ensures the latest availability and schedule information for flights.
-- **Responsive Design**: Optimized for use on desktops, tablets, and smartphones.
+## Instalasi lokal
 
-## Technologies Used
+Persyaratan: **PHP 8.3+**, Composer 2, ekstensi PHP yang dibutuhkan Laravel 13, dan MySQL 8+ (atau SQLite).
 
-- **Backend**: Laravel framework for handling backend processes and routing.
-- **Frontend**: Blade templating engine, HTML, CSS, and JavaScript.
-- **Database**: MySQL (or compatible databases) for data storage.
+```bash
+git clone https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git
+cd WebsiteLaravel_FlyHighProject
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-## Installation and Setup
+Konfigurasi database pada `.env`. Untuk MySQL, buat database kosong `flyhigh` dan sesuaikan `DB_USERNAME` serta `DB_PASSWORD`. Untuk SQLite:
 
-To set up this project locally, follow these steps:
+```dotenv
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/your/project/database/database.sqlite
+```
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git
-   ```
+Buat file SQLite terlebih dahulu. Kemudian jalankan:
 
-2. **Navigate to the Project Directory**:
-   ```bash
-   cd WebsiteLaravel_FlyHighProject
-   ```
+```bash
+php artisan migrate --seed
+php artisan serve
+```
 
-3. **Install Dependencies**:
-   ```bash
-   composer install
-   ```
+Buka **http://localhost:8000**. Buat akun melalui halaman Daftar. Untuk mendapatkan akses admin:
 
-4. **Set Up Environment Variables**:
-   - Copy `.env.example` and rename it to `.env`.
-   - Configure the database and other necessary settings in the `.env` file.
+```bash
+php artisan flyhigh:make-admin your-email@example.com
+```
 
-5. **Generate Application Key**:
-   ```bash
-   php artisan key:generate
-   ```
+Perintah ini membutuhkan konfirmasi interaktif dan hanya dapat dijalankan dari CLI oleh operator server.
 
-6. **Run Database Migrations**:
-   ```bash
-   php artisan migrate
-   ```
+## Pengujian
 
-7. **Start the Development Server**:
-   ```bash
-   php artisan serve
-   ```
-   - You can now access the application at [http://localhost:8000](http://localhost:8000).
+```bash
+php artisan test
+```
 
-## Usage
+Test memakai SQLite in-memory via `phpunit.xml`, tidak menggunakan database pengembangan.
 
-1. Visit the homepage at `http://localhost:8000`.
-2. Register or log in to access flight booking features.
-3. Search and book flights using the available options.
+## Deploy (persiapan)
 
-## Contributing
+1. Set PHP 8.3+, install dependencies melalui `composer install --no-dev --optimize-autoloader`.
+2. Set document root ke direktori `public/`, bukan root repository.
+3. Set `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://domain-anda`, `APP_KEY` baru, dan database credential khusus.
+4. Jalankan `php artisan migrate --force`, serta `php artisan config:cache` dan `php artisan route:cache`.
+5. Gunakan HTTPS, permission storage/bootstrap/cache yang sesuai, dan backup database rutin.
 
-Contributions are welcome! Please follow these steps to contribute:
+### Migrasi dari versi lama
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/YourFeature`).
-3. Commit your changes (`git commit -m 'Add your feature'`).
-4. Push to the branch (`git push origin feature/YourFeature`).
-5. Open a Pull Request.
+Struktur data v1 (`tbl_user`, `tbl_ticket`, dll.) **tidak otomatis dipindahkan** ke skema v2; script migrasi data harus disusun setelah tersedia dump SQL lama. Jangan menjalankan perubahan ini di atas database lama yang berisi data penting tanpa backup. File `.env` lama pernah tersimpan di Git history: semua secret/APP_KEY terdahulu harus dirotasi dan history dibersihkan secara terpisah jika repository akan tetap publik.
+
+### Catatan pengelolaan dependencies
+
+Repo lama meng-commit direktori `vendor/` dan `composer.lock` Laravel 10. Keduanya sengaja dikeluarkan dari source tree saat upgrade lintas versi. Jalankan `composer update` atau `composer install` untuk menghasilkan lock file sesuai Laravel 13 di mesin dengan akses Packagist. **Commit kembali `composer.lock` yang sudah terverifikasi** untuk deployment yang reproducible. Jalankan pengujian setelah instalasi; peningkatan ini belum tervalidasi di lingkungan production.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE.md](LICENSE.md) file for details.
+MIT.

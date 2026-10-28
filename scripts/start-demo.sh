@@ -13,6 +13,19 @@ if ! command -v php >/dev/null 2>&1 || ! command -v composer >/dev/null 2>&1; th
   echo 'Install PHP 8.3+ (pdo_sqlite, mbstring, dom, gd) and Composer first.' >&2
   exit 1
 fi
+if ! grep -Eq '^DB_CONNECTION=sqlite
+touch database/demo.sqlite
+php artisan optimize:clear
+if grep -Eq '^APP_KEY=$' .env; then php artisan key:generate --force; fi
+php artisan migrate --force
+php artisan db:seed --class=PresentationSeeder --force
+echo 'FlyHigh demo ready at http://127.0.0.1:8000'
+echo 'Demo users: athena, hephaestus, argus and traveler @flyhigh.test'
+php artisan serve --host=127.0.0.1 --port=8000
+ .env; then
+  echo 'Demo requires a dedicated SQLite database; refusing non-SQLite configuration.' >&2
+  exit 1
+fi
 if [[ ! -d vendor ]]; then composer install --no-interaction --prefer-dist; fi
 touch database/demo.sqlite
 php artisan optimize:clear

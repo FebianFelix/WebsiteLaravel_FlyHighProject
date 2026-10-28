@@ -1,34 +1,75 @@
-# FlyHigh v2.0 — standalone demo
+# FlyHigh demo branch — hands-on presentation
 
-This third environment complements **development** and **production**. The demo environment does not need MySQL, Stripe, Duffel, SMTP or GitHub Actions deployment. It uses PHP, Composer, local assets, and a local SQLite file. Installing Composer dependencies on a fresh machine can require network access; afterwards the demo itself does not call external services.
+The **`demo` branch** is an independently runnable, local-only FlyHigh sales presentation. It uses fictional bookings and local SQLite; no MySQL, Stripe, Duffel, SMTP, Redis, external airline or payment service is needed at runtime.
 
-## Quick start
+## Recommended: one Docker command
+
+Prerequisites: **Docker Engine + Docker Compose plugin**. No separately installed PHP, Composer or MySQL required.
 
 ```bash
-git clone https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git
+git clone --branch demo https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git
 cd WebsiteLaravel_FlyHighProject
-git checkout dev
+docker compose -f docker-compose.demo.yml up --build -d --wait
+```
+
+Open **http://127.0.0.1:8088** in your browser. Docker automatically installs PHP/Composer dependencies during its initial image build (network access required for first image and dependency download), generates a private Laravel APP_KEY, creates a persistent local SQLite database, migrates it, and seeds sample users, flights, bookings, paid demo receipts, discounts and a refund request. The running demo makes no requests to external providers.
+
+```bash
+docker compose -f docker-compose.demo.yml ps
+docker compose -f docker-compose.demo.yml logs -f demo
+bash scripts/demo-http-smoke.sh http://127.0.0.1:8088
+```
+
+The demo binds **127.0.0.1 only** (not available from another computer by default). Project name `flyhigh-presentation`, local host port `8088`. To change local port: `FLYHIGH_DEMO_PORT=8090 docker compose -f docker-compose.demo.yml up --build -d --wait`.
+
+## Offline after initial setup
+
+Once base images and Composer dependencies have been downloaded and built, you can disconnect from the internet and continue presenting the running Docker application. All JS/CSS/images are local; Google Fonts and external API adapters are disabled in demo mode. A new computer's first installation still needs network access to acquire Docker images and Composer dependencies.
+
+## Login and demo scenarios
+
+| Account | Login | Roles |
+|---|---|---|
+| Athena | `athena@flyhigh.test` | Both admin panels, user role management, refund approval |
+| Hephaestus | `hephaestus@flyhigh.test` | Configuration, CMS, promos, synthetic flight CRUD |
+| Argus | `argus@flyhigh.test` | Monitoring, bookings, reports, audits, refund queue |
+| Traveler | `traveler@flyhigh.test` | Wishlist, seat reservation, itinerary, simulated payment |
+
+All accounts use **`DemoPass123!`** by default. It is intentionally a local sample password; change it through `FLYHIGH_DEMO_PASSWORD` before seeding if sharing with others. **Never publish these privileged demo accounts over an unauthenticated internet-facing server**.
+
+Recommended live walkthrough:
+
+1. Open homepage as guest, explore search filters, cabin/baggage, Help, and Info.
+2. Log in as Traveler; inspect existing confirmed and pending reservations, PDF invoice/e-ticket, promo `DEMO10` or `FLYHIGH20`, wishlist, user preferences and book a flight.
+3. Log in as Athena; select **Configuration** and modify the banner or CMS; return to **Monitoring** for the populated dashboard/refund queue. Demonstrate managing user roles.
+4. Log in as Hephaestus and show that Monitoring access is blocked. Log in as Argus and show that Configuration access is blocked.
+
+## Clean reset before the next presentation
+
+Demo data survives a normal container restart. To remove only the presentation Compose project's volume and restore the original fictional data, run:
+
+```bash
+bash scripts/reset-demo.sh
+```
+
+The script requires typing `RESET-DEMO`. `bash scripts/reset-demo.sh --yes` skips confirmation **and permanently deletes the isolated demo bookings, sessions and local database**. Neither command touches the development or production databases.
+
+```bash
+docker compose -f docker-compose.demo.yml down
+```
+stops the demo without deleting its persistent data.
+
+## Alternative: PHP locally
+
+If PHP 8.3+, pdo_sqlite, Composer and the other Laravel extensions are installed, run:
+
+```bash
+git checkout demo
 bash scripts/start-demo.sh
 ```
 
-The script refuses to overwrite a non-demo `.env`. It copies `.env.demo.example` into ignored `.env` if missing, creates the ignored `database/demo.sqlite` file, installs Composer dependencies, generates a unique APP_KEY, migrates the demo DB, seeds fictional flights, coupon `DEMO10`, a sample CMS page, and four demonstration accounts.
+This uses the ignored local `.env` created from `.env.demo.example` and a separate local SQLite database `database/demo.sqlite` at http://127.0.0.1:8000. The launcher refuses an existing non-demo environment. The local PHP launcher and Docker Compose launcher keep different databases.
 
-| Login email | Role | Access |
-| --- | --- | --- |
-| athena@flyhigh.test | Athena | Config + monitoring + refund approval |
-| hephaestus@flyhigh.test | Hephaestus | Config, flights, CMS, promo |
-| argus@flyhigh.test | Argus | Dashboard, bookings, monitoring |
-| traveler@flyhigh.test | Traveler | Browse, reserve and customize profile |
+## Safety and scope
 
-Default local demo password: `DemoPass123!`; override via `FLYHIGH_DEMO_PASSWORD` before seeding. All credentials are **fictional**. Do **not** expose an unprotected demo with administrator accounts to the internet. Use localhost, private tunnels with authentication, or a tightly restricted disposable host with scheduled resets.
-
-For a clean reset on an isolated demo system: delete `database/demo.sqlite` only after confirming that the current `.env` has `APP_ENV=demo`, then rerun the script. Never reset an actual development or production database.
-
-## Important limitations
-
-- Search and bookings are synthetic; no real airline tickets or orders are issued.
-- Offline demo payments confirm records without transferring money.
-- Offline test emails are written to logs.
-- Built-in style assets and photos are local; Google Fonts are disabled in demo.
-- Flight API (Duffel) and live checkout (Stripe) are disabled, with empty tokens by default.
-- Do not enter real payment details, government identifiers or passport numbers.
+The demo **does not issue airline tickets or transfer money**. All routes, invoices, emails and admin account names are fictional. Don't enter real identity/payment data. This demo is a presentation asset, **not a public multi-tenant hosted SaaS**. Demo is deliberately isolated from `dev` and `master`, whose long-lived database credentials and deploy flows must never be copied into this branch.

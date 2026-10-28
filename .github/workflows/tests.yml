@@ -2,7 +2,7 @@ name: FlyHigh CI/CD
 
 on:
   push:
-    branches: [dev, master]
+    branches: [demo, dev, master]
   pull_request:
     branches: [dev, master]
   workflow_dispatch:
@@ -63,6 +63,7 @@ jobs:
         run: php artisan test
 
   test-mysql:
+    if: github.ref != 'refs/heads/demo' && github.base_ref != 'demo'
     name: Integration tests (MySQL 8)
     runs-on: ubuntu-latest
     services:
@@ -118,9 +119,31 @@ jobs:
           php artisan migrate:status
           php artisan route:list --except-vendor
 
+  presentation-browser:
+    name: Presentation Docker + HTTP end-to-end
+    if: github.ref == 'refs/heads/demo' || github.base_ref == 'demo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate demo shell scripts
+        run: bash -n scripts/*.sh docker/demo-entrypoint.sh
+      - name: Build, initialize and start standalone Docker demo
+        run: docker compose -f docker-compose.demo.yml up --build -d --wait
+      - name: Smoke test real HTTP and administrator login
+        run: bash scripts/demo-http-smoke.sh
+      - name: Collect container diagnostics if failed
+        if: failure()
+        run: |
+          docker compose -f docker-compose.demo.yml ps
+          docker compose -f docker-compose.demo.yml logs --tail=120 demo
+      - name: Stop disposable presentation
+        if: always()
+        run: docker compose -f docker-compose.demo.yml down --volumes --remove-orphans
+
   image:
     name: Build and publish immutable image
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref != 'refs/heads/demo'
     needs: [test-sqlite, test-mysql, demo-smoke]
     runs-on: ubuntu-latest
     permissions:

@@ -1,138 +1,37 @@
-# FlyHigh v2.0.0 — Laravel Flight Reservation Management System
+# FlyHigh v2.0 — Presentation Demo
 
-> **© 2023–2026 FebianFelix · Source-available software.** [Canonical GitHub repository](https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject).
->
-> FlyHigh is an advanced, configurable **synthetic flight-reservation software platform**. The repository does not issue legal airline tickets, create airline orders, or run live card charges. It is suitable for software demonstrations, developer portfolios, and customization projects. A functioning OTA requires licensed providers, live inventory/order fulfillment, operational verification, and compliance.
+**This is the `demo` branch.** It is for running a complete **fictional flight booking presentation**, not accepting live bookings or payments. The production release source is in [`master`](https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject/tree/master); ongoing development is [`dev`](https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject/tree/dev).
 
-## Meet FlyHigh 2.0
-
-Travelers can browse flights without logging in, explore one-way/return/multi-city search, view cabin and baggage details, save a wishlist, sign up/login when reserving, choose seats, reserve connected itineraries, use promotional codes, access invoice/ticket PDFs, and customize account preferences. The reservation system includes a transactional inventory lock, unique booking references and a time-limited hold.
-
-**Administrator workspace:**
-
-| Role | Mythology | Allowed area |
-|---|---|---|
-| **Athena** | Wisdom & strategy | Both configuration and operations, plus staff roles and refund decisions |
-| **Hephaestus** | Craftsmanship | Configuration: brand, CMS, flights, pricing promos |
-| **Argus** | All-seeing watcher | Monitoring: analytics, bookings, CSV export, refunds, audit events |
-| **Traveler** | User | Personal booking history and account controls |
-
-After an admin signs in, they see a **two-panel Control Center**: configuration and monitoring. Routes enforce the same privileges on the server. Existing legacy `admin` accounts retain super-admin access for migration compatibility.
-
-### Feature matrix
-
-| Category | Included in v2.0 |
-|---|---|
-| Flight search | One way, return and multi-city discovery, class/baggage filters |
-| Booking | 1–6 passengers, seat map, expiry, idempotency, SQL transaction |
-| Multi-leg | 2–4 connected segments reserved atomically in one itinerary |
-| Customer experience | Signup/login, password reset, email verification, profile, preferences, wishlist |
-| CMS | Public pages, safe text content, branding, support contacts, site announcements |
-| Admin | Athena / Hephaestus / Argus with access controls and audits |
-| Commerce simulation | Coupons, fare breakdown, invoice PDFs, demo payment, refund requests |
-| External adapters | Duffel v2 **read-only** offers; Stripe Checkout **test keys only** |
-| API | Laravel Sanctum token-authenticated booking and flight endpoints |
-| Quality & delivery | SQLite/MySQL tests, standalone demo smoke, Docker/GHCR, dev/master CI/CD |
-| Provenance | LICENSE, NOTICE, metadata, DB provenance, source history and footer |
-
-**Documentation:** [Release notes](docs/RELEASE_NOTES_v2.md) · [Version history](CHANGELOG.md) · [Seller guide](docs/SELLER_GUIDE.md) · [API](docs/API.md) · [Provider adapters](docs/INTEGRATIONS.md).
-
-## Run an offline demo in minutes
-
-Requirements: **PHP 8.3+, Composer, SQLite PDO extension**. At runtime only local components are used: no MySQL server, Stripe, Duffel, SMTP, or GitHub authentication. An initial Composer dependency download may require network access unless dependencies are cached.
+## Start in Docker
 
 ```bash
-git clone https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git
+git clone --branch demo https://github.com/FebianFelix/WebsiteLaravel_FlyHighProject.git
 cd WebsiteLaravel_FlyHighProject
-bash scripts/start-demo.sh
+docker compose -f docker-compose.demo.yml up --build -d --wait
 ```
 
-Open **http://127.0.0.1:8000**. The script copies ignored `.env.demo.example` to `.env`, creates `database/demo.sqlite`, installs dependencies, generates a private application key, migrates, seeds fictional data and serves locally.
+Open **http://127.0.0.1:8088**.
 
-| Fictional account | E-mail | Demo access |
-|---|---|---|
-| Athena | `athena@flyhigh.test` | Both admin panels |
-| Hephaestus | `hephaestus@flyhigh.test` | Configuration |
-| Argus | `argus@flyhigh.test` | Monitoring |
-| Traveler | `traveler@flyhigh.test` | User booking |
+No MySQL service, airline provider, card processor or SMTP required. Initial Docker image/Composer downloads need internet; once built, the presentation runs locally without external integrations.
 
-Demo password (local only): `DemoPass123!` or the configured `FLYHIGH_DEMO_PASSWORD`. **Do not publish default admin credentials on an internet-facing demo**. Use access control and disposable data resets. See [DEMO.md](docs/DEMO.md).
+## Live presentation
 
-## Standard development setup
+- **Traveler**: `traveler@flyhigh.test` — show search, booking history, wishlist, coupon, seat map, demo e-ticket and invoice.
+- **Athena**: `athena@flyhigh.test` — full access, two admin panels, roles and refund approvals.
+- **Hephaestus**: `hephaestus@flyhigh.test` — configuration, CMS, flights and promotions.
+- **Argus**: `argus@flyhigh.test` — dashboards, audits, bookings and refund monitoring.
+
+Default *local-only* demo password: `DemoPass123!`. Keep the server bound to localhost; don't expose these test credentials on the public internet.
+
+## Presenter tools
 
 ```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-# Configure a new MySQL database OR SQLite database file in .env.
-php artisan migrate --seed
-php artisan serve
+bash scripts/demo-http-smoke.sh http://127.0.0.1:8088
+bash scripts/reset-demo.sh
 ```
 
-Start the scheduler in a separate terminal to expire holds: `php artisan schedule:work`. Do not run against the original 2023 database without migration planning/backups. The old `tbl_*` layout has **no** automatic data migration.
+Reset deletes only the dedicated presentation data volume. For full setup and presentation walkthroughs, see [docs/DEMO.md](docs/DEMO.md).
 
-To give an **existing** account a role through the private server CLI:
+### Software scope
 
-```bash
-php artisan flyhigh:make-admin admin@example.com --role=athena
-php artisan flyhigh:make-admin config@example.com --role=hephaestus
-php artisan flyhigh:make-admin ops@example.com --role=argus
-```
-
-Each command asks for confirmation; no predefined administrator account is seeded outside demo.
-
-For a Docker-based local MySQL stack, configure a private `.env` and strong passwords, then run `docker compose up --build -d` and `docker compose exec app php artisan migrate --seed`.
-
-## Three environments
-
-| Environment | Code target | Database | Deployment |
-|---|---|---|---|
-| **Demo** | Any verified revision | Local SQLite + fictional users | Local-only, no external integrations |
-| **Development** | `dev` branch | Separate dev MySQL | Conditional auto-CD |
-| **Production** | `master` branch | Separate production MySQL | Protected approval gate before CD |
-
-Production and development require separate `APP_KEY`, databases, Docker projects, storage, SSH identities and secret management. Deployment remains OFF until an operator configures the GitHub Environments and explicit enable flags. See [ENVIRONMENTS.md](docs/ENVIRONMENTS.md).
-
-### Provider feature flags
-
-```env
-FLYHIGH_DEMO_PAYMENTS=true
-FLYHIGH_PAYMENT_GATEWAY=disabled
-FLYHIGH_FLIGHT_PROVIDER=disabled
-FLYHIGH_TAX_PERCENT=0
-```
-
-- Stripe adapter uses `sk_test_...` keys **only**, plus verified signing secret; **never** live payments in this source release.
-- Duffel adapter searches provider offers but does **not** create airline orders.
-- A synthetic Flight booking and a Duffel provider offer are **different** records: buying an actual flight requires additional integration.
-- No real refund can be promised without provider-side reconciliation and legal terms.
-
-See [INTEGRATIONS.md](docs/INTEGRATIONS.md) before editing these values.
-
-## CI quality gates
-
-The GitHub Actions pipeline automatically validates Composer, runs PHP syntax lint, compiles routes and executes **SQLite and MySQL 8 test suites**, boots the offline demo with migrations/fixtures and builds a Docker container pushed to GHCR by image digest. PRs to `master` must originate from `dev`. Operator must still apply actual GitHub branch rules and protected environment approvals.
-
-```bash
-php artisan test
-php artisan route:list
-bash -n scripts/start-demo.sh scripts/package-release.sh scripts/cd-deploy.sh
-```
-
-Generate a clean source ZIP for marketplace review:
-
-```bash
-bash scripts/package-release.sh
-```
-
-The archive/checksum appear in ignored `.releases/`. Verify third-party asset redistribution rights before offering it to buyers.
-
-## Security, deployment and license caveats
-
-- Rotate any secret from historical Git commits, including historical `APP_KEY`; `.env` no longer appears at current HEAD but Git history may still contain the prior one.
-- Require HTTPS, secure session cookies, secret manager, SMTP/queue/scheduler, reliable backup, logging/monitoring, rate limiting, testing on actual MySQL concurrency and professional security review before launching customer data.
-- The original university project may contain third-party photos/brand references. **Commercial redistribution rights must be verified**, not assumed.
-- The public repository is **source-available**, not automatically permissive open source. Current `LICENSE` and `NOTICE` govern the published version; **old grants remain valid** if an earlier version was licensed differently. Public source can still be cloned; attribution is not DRM.
-- Do not describe FlyHigh 2.0 as a full OTA: real ticket issuance, compliant invoicing, cross-provider flight booking, live-money payments, full localization, airline settlement, and actual production deployment are beyond its current scope.
-
-**Copyright © 2023–2026 FebianFelix. All rights reserved.**
+All bookings, prices and PDF tickets are fictional; Duffel is read-only and Stripe is test-only in the general source, but both are completely **disabled** in this Docker demo. This branch isn't intended for production deployment. Copyright © 2023–2026 FebianFelix; refer to LICENSE and NOTICE for licensing details.

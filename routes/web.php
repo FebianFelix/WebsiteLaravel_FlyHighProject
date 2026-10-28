@@ -18,6 +18,8 @@ use App\Http\Controllers\StripeCheckoutController;
 use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\PortalController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\AuditController as AdminAuditController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -90,6 +92,7 @@ Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(func
         Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
         Route::get('/bookings/export', [AdminBookingController::class, 'export'])->name('bookings.export');
         Route::get('/refunds', [AdminRefundController::class, 'index'])->name('refunds.index');
+        Route::get('/audit', [AdminAuditController::class, 'index'])->name('audit.index');
     });
     Route::middleware('admin:config')->group(function () {
         Route::resource('flights', AdminFlightController::class)->except(['show']);
@@ -100,6 +103,8 @@ Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(func
         Route::post('/promos', [PromoController::class, 'store'])->name('promos.store');
         Route::patch('/promos/{promo}', [PromoController::class, 'toggle'])->name('promos.toggle');
     });
+    Route::get('/users', [AdminUserController::class, 'index'])->middleware('admin:athena')->name('users.index');
+    Route::patch('/users/{user}/role', [AdminUserController::class, 'updateRole'])->middleware('admin:athena')->name('users.role');
     Route::post('/refunds/{refund}/approve', [AdminRefundController::class, 'approve'])->middleware('admin:athena')->name('refunds.approve');
     Route::post('/refunds/{refund}/reject', [AdminRefundController::class, 'reject'])->middleware('admin:athena')->name('refunds.reject');
 });

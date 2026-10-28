@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Flight;
 use App\Models\User;
+use App\Models\RefundRequest;
+use App\Models\PaymentEvent;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -21,6 +23,9 @@ class DashboardController extends Controller
             'gross_booking_value' => Booking::where('status', Booking::CONFIRMED)->sum('total_price'),
             'members' => User::where('role', 'member')->count(),
             'reserved_seats' => Booking::where('status', Booking::CONFIRMED)->sum('seats'),
+            'reconciliation_required' => PaymentEvent::where('status','requires_review')->count(),
+            'refund_requested' => RefundRequest::where('status','requested')->count(),
+            'refund_processing' => RefundRequest::where('status','processing')->count(),
         ];
         $daily = collect(range(6, 0))->map(function ($days) {
             $date = now()->subDays($days)->toDateString();

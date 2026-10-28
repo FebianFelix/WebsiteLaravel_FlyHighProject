@@ -58,6 +58,18 @@ Open **http://127.0.0.1:8000**. The script copies ignored `.env.demo.example` to
 
 Demo password (local only): `DemoPass123!` or the configured `FLYHIGH_DEMO_PASSWORD`. **Do not publish default admin credentials on an internet-facing demo**. Use access control and disposable data resets. See [DEMO.md](docs/DEMO.md).
 
+## Local development with Docker — dedicated MySQL
+
+On `dev` or a feature branch, with Docker and OpenSSL installed:
+
+```bash
+bash scripts/start-dev.sh --seed
+```
+
+The script creates an ignored, local-only `.env` with randomly generated MySQL credentials and APP_KEY, sets `APP_ENV=development`, builds a PHP image including **development dependencies and PHPUnit**, starts the separate MySQL service, checks database connectivity, applies migrations and optionally seeds **fictional development data**. Services are bound to localhost only. Repeated runs do not wipe databases.
+
+Run `docker compose exec -T app php artisan test` to execute regression tests inside the developer container. Stop safely with `docker compose down` (retains its MySQL volume). This workflow is **not** a production deployment.
+
 ## Standard development setup
 
 ```bash

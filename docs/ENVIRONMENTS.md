@@ -132,3 +132,8 @@ The `demo` branch contains `docker-compose.demo.yml`, `scripts/reset-demo.sh`, a
 ## Release-time safeguards
 
 The runtime preflight now executes `php artisan flyhigh:doctor --check-db --strict` prior to applying migrations. It verifies secret presence without displaying secret values; production HTTPS, secure session cookies and database; and rejects unsafe demo payment settings. `FLYHIGH_BOOKING_MODE=catalog_only` is the production default because synthetic reservations cannot issue airline tickets. An operator may explicitly choose `simulation` for an intentionally fictional setup, never for airline ticket issuance. `DatabaseSeeder` refuses to create fake flights in `APP_ENV=production`.
+
+
+## Developer workstation (Docker)
+
+For `dev`, run `bash scripts/start-dev.sh --seed`. It uses `docker-compose.yml`, generates a private APP_KEY and random local MySQL passwords, binds 8080 to localhost, and installs Composer's development dependencies into the **local developer image only**. A GHCR production build still uses the default `INSTALL_DEV=false`. To test: `docker compose exec -T app php artisan test`. It intentionally refuses to overwrite a non-development `.env` and leaves the database volume intact on normal stop.

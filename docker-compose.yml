@@ -1,7 +1,10 @@
 # Local demo only. Never use example secrets for a public deployment.
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_DEV: "true"
     env_file: .env
     environment:
       DB_CONNECTION: mysql
@@ -32,7 +35,10 @@ services:
     restart: unless-stopped
 
   scheduler:
-    build: .
+    build:
+      context: .
+      args:
+        INSTALL_DEV: "true"
     command: ["php", "artisan", "schedule:work"]
     env_file: .env
     environment:

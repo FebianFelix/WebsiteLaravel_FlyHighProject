@@ -6,8 +6,13 @@ RUN apk add --no-cache bash curl icu-dev libzip-dev oniguruma-dev libxml2-dev sq
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
+ARG INSTALL_DEV=false
 COPY . .
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader \
+RUN if [ "$INSTALL_DEV" = "true" ]; then \
+      composer install --no-interaction --prefer-dist --optimize-autoloader; \
+    else \
+      composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader; \
+    fi \
     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache
 

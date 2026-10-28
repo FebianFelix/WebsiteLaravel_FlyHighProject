@@ -5,6 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DemoPaymentController;
 use App\Http\Controllers\FlightController;
 use App\Http\Controllers\LiveOfferController;
+use App\Http\Controllers\ItineraryController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PreferenceController;
@@ -52,6 +53,11 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [BookingController::class, 'index'])->name('dashboard');
+    Route::get('/itineraries/create', [ItineraryController::class, 'create'])->name('itineraries.create');
+    Route::post('/itineraries', [ItineraryController::class, 'store'])->middleware('throttle:8,1')->name('itineraries.store');
+    Route::get('/itineraries/{itinerary}', [ItineraryController::class, 'show'])->name('itineraries.show');
+    Route::post('/itineraries/{itinerary}/demo-confirm', [ItineraryController::class, 'confirm'])->name('itineraries.confirm');
+    Route::patch('/itineraries/{itinerary}/cancel', [ItineraryController::class, 'cancel'])->name('itineraries.cancel');
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/flights/{flight}/book', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/bookings', [BookingController::class, 'store'])->middleware('throttle:10,1')->name('bookings.store');

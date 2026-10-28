@@ -65,6 +65,7 @@ class BookingController extends Controller
     public function cancel(Request $request, Booking $booking): RedirectResponse
     {
         abort_unless($booking->user_id === $request->user()->id || $request->user()->canMonitor(), 403);
+        abort_unless($booking->itinerary_id === null, 409, 'Cancel the entire itinerary from its detail page.');
         $this->bookings->cancel($booking);
         return redirect()->route('bookings.show', $booking)->with('success', 'Status reservasi diperbarui.');
     }

@@ -17,6 +17,7 @@ class DemoPaymentController extends Controller
         abort_unless((bool) config('flyhigh.demo_payment_enabled'), 404);
         abort_unless($request->user()->id === $booking->user_id, 403);
 
+        abort_unless($booking->itinerary_id === null, 409, 'Confirm the whole itinerary instead.');
         $wasConfirmed = $booking->status === Booking::CONFIRMED;
         $booking = $this->bookings->settleDemo($booking);
         if (! $wasConfirmed) {

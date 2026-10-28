@@ -25,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     public function wishlistedFlights(): BelongsToMany { return $this->belongsToMany(Flight::class, 'flight_wishlists'); }
+    public function itineraries(): HasMany { return $this->hasMany(Itinerary::class); }
     public function bookings(): HasMany { return $this->hasMany(Booking::class); }
     public function isAdmin(): bool { return in_array($this->role, ['admin', self::ATHENA, self::HEPHAESTUS, self::ARGUS], true); }
     public function canManageConfig(): bool { return in_array($this->role, ['admin', self::ATHENA, self::HEPHAESTUS], true); }

@@ -52,6 +52,7 @@ class BookingController extends Controller
     {
         abort_unless($request->user()->tokenCan('bookings:write'), 403);
         abort_unless($request->user()->id === $booking->user_id, 403);
+        abort_unless($booking->itinerary_id === null, 409, 'Cancel the entire itinerary instead.');
         return response()->json(['data' => $this->service->cancel($booking)]);
     }
 }

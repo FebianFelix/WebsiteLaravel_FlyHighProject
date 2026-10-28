@@ -17,6 +17,7 @@
 <button class="btn btn-primary">Cari penerbangan</button>
 <a class="btn btn-ghost" href="{{ route('flights.index') }}">Reset</a>
 </form>
+<div class="notice-panel card"><strong>Multi-leg planner</strong><p>For return and multi-city trips, you can reserve connected segments together instead of booking each one individually.</p><a class="btn btn-outline btn-small" href="{{ route('itineraries.create') }}">Build a multi-leg itinerary →</a></div>
 <div class="list-heading"><h2>{{ $flights->total() }} penerbangan ditemukan</h2><span>Harga dalam IDR · Jadwal simulasi · Waktu UTC</span></div>
 <div class="flight-grid">@forelse($flights as $flight)@include('components.flight-card', ['flight' => $flight])@empty<div class="empty-state wide"><h3>Jadwal tidak ditemukan.</h3><p>Coba ubah kota, filter, atau tanggal.</p><a class="btn btn-outline" href="{{ route('flights.index') }}">Semua penerbangan</a></div>@endforelse</div>
 @include('components.pagination', ['paginator' => $flights])

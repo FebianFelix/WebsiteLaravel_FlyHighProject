@@ -1,0 +1,50 @@
+# Reusable immutable-image runtime for either development or production.
+# The two environments MUST have different FLyHigh project names, databases,
+# APP_KEY values, storage volumes, and external hostnames.
+name: ${FLYHIGH_PROJECT:?Set FLYHIGH_PROJECT}
+
+services:
+  app:
+    image: ${FLYHIGH_IMAGE:?Set immutable FLYHIGH_IMAGE}
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks: [flyhigh]
+
+  scheduler:
+    image: ${FLYHIGH_IMAGE:?Set immutable FLYHIGH_IMAGE}
+    restart: unless-stopped
+    env_file: .env
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks: [flyhigh]
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FLYHIGH_HTTP_PORT:?Set FLYHIGH_HTTP_PORT}:80"
+    volumes:
+      - public_assets:/var/www/html/public:ro
+      - ./nginx.deploy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks: [flyhigh]
+
+  assets:
+    image: ${FLYHIGH_IMAGE:?Set immutable FLYHIGH_IMAGE}
+    profiles: [assets]
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["cp -R /var/www/html/public/. /shared-assets/"]
+    volumes:
+      - public_assets:/shared-assets
+
+volumes:
+  app_storage:
+  public_assets:
+
+networks:
+  flyhigh:
